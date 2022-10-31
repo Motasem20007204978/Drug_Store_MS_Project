@@ -131,3 +131,6 @@ dmypy.json
 # media and static sub folders
 media/**
 static/**
+
+!static/.gitkeep
+!media/.gitkeep

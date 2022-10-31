@@ -10,7 +10,6 @@ class DrugSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "name": {"required": False},
             "quantity": {"required": False},
-            "price": {"required": False},
-            "expiration_time": {"required": False},
-            "availability": {"required": False},
+            "drug_price": {"required": False},
+            "exp_time": {"required": False},
         }

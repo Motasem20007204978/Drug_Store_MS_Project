@@ -41,10 +41,6 @@ DEFAULT_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "django_extensions",
-    "drf_yasg",
-    "drug_app.apps.DrugAppConfig",
 ]
 
 THIRD_APRTY_APSS = [
@@ -53,11 +49,9 @@ THIRD_APRTY_APSS = [
     "drf_yasg",
 ]
 
-LOCAL_APPS = [
-    "project_apps.drug_app.apps.DrugAppConfig",
-]
+LOCAL_APPS = ["drug_app.apps.DrugAppConfig", "order_app.apps.OrderAppConfig"]
 
-INSTALLED_APPS = DEFAULT_APPS
+INSTALLED_APPS = DEFAULT_APPS + THIRD_APRTY_APSS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
