@@ -4,22 +4,29 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateAPIView,
     get_object_or_404,
+    GenericAPIView,
 )
 from rest_framework.response import Response
-from project_apps import CSVFiles
+from .store_csv import CSVFiles
 import csv, os
 from .filters import DrugFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from orderapp.models import Order
 
 
-class ListCreateDrugView(ListCreateAPIView):
-
+class AbstractView(GenericAPIView):
     serializer_class = DrugSerializer
     queryset = Drug.objects.all()
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+
+class ListCreateDrugView(AbstractView, ListCreateAPIView):
+
     filter_backends = [DjangoFilterBackend]
     filterset_class = DrugFilter
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_staff:
@@ -31,6 +38,8 @@ class ListCreateDrugView(ListCreateAPIView):
 
         # delete database
         self.get_queryset().delete()
+        # reject all orders after deleting
+        Order.objects.all().update(status="RE")
 
         with open(csv_file) as f_data:
             reader = csv.DictReader(f_data)
@@ -58,12 +67,7 @@ class ListCreateDrugView(ListCreateAPIView):
         return Response({"message": "the file data is uploaded successfully"})
 
 
-class OneDrugView(RetrieveUpdateAPIView):
-
-    serializer_class = DrugSerializer
-    queryset = Drug.objects.all()
-    permission_classes = [IsAuthenticated]
-
+class OneDrugView(AbstractView, RetrieveUpdateAPIView):
     def get_object(self):
         drug_id = self.kwargs["drug_id"]
         drug = get_object_or_404(Drug, pk=drug_id)

@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class DrugAppConfig(AppConfig):
+class OrderappConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "drug_app"
+    name = "orderapp"
 
     def ready(self) -> None:
-        import drug_app.signals
+        import orderapp.signals

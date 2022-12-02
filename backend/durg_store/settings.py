@@ -18,7 +18,7 @@ import sys, os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # to config apps within a folder
-sys.path.insert(0, os.path.join(BASE_DIR, "project_apps"))
+sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -46,10 +46,15 @@ DEFAULT_APPS = [
 THIRD_APRTY_APSS = [
     "rest_framework",
     "django_extensions",
-    "drf_yasg",
+    "rest_framework_simplejwt",
+    "drf_spectacular"
 ]
 
-LOCAL_APPS = ["drug_app.apps.DrugAppConfig", "order_app.apps.OrderAppConfig"]
+LOCAL_APPS = [
+    "drugs_app.apps.DrugsAppConfig", 
+    "orders_app.apps.OrdersAppConfig",
+    "users_app.apps.UsersAppConfic"
+]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_APRTY_APSS + LOCAL_APPS
 
@@ -68,7 +73,7 @@ ROOT_URLCONF = "durg_store.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -130,6 +135,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / 'static'
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

@@ -7,4 +7,4 @@ class DrugFilter(filters.FilterSet):
 
     class Meta:
         model = Drug
-        fields = ("name", "price", "quantity")
+        fields = ("name", "drug_price", "quantity")

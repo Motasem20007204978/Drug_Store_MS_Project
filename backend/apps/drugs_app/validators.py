@@ -17,9 +17,3 @@ name_validator = NameValidator()
 def integer_length(value):
     if value > 10000:
         raise ValidationError("the quantity of a drug cannot be more than 10000")
-
-
-def code_length(value):
-    if str(value) != 4:
-        raise ValidationError("the drug code must be from 4 digits")
-    ...

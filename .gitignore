@@ -129,8 +129,11 @@ dmypy.json
 .pyre/
 
 # media and static sub folders
-media/**
-static/**
+*/media/**
+*/static/**
 
-!static/.gitkeep
-!media/.gitkeep
+!*/static/.gitkeep
+!*/media/.gitkeep
+
+**/migrations/**
+!**/migrations/__init__.py
