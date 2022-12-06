@@ -1,29 +1,29 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
-from drug_app.models import Drug, AbstractDrug
+from drugs_app.models import Drug, AbstractDrug
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 
 
 User = get_user_model()
 
 
-class Order(models.Model):
+class Order(TimeStampedModel):
     STATUS = (
         ("PE", "Pending"),
         ("CO", "Completed"),
         ("RE", "Rejected"),
         ("CA", "Canceled"),
     )
-    user = models.ForeignKey(User, on_xdelete=models.CASCADE, related_name="orders")
-    status = models.CharField(default='Pinned', choices=STATUS, max_length=2)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
+    status = models.CharField(default="Pinned", choices=STATUS, max_length=2)
     description = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True, editable=False, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, editable=False, blank=True)
-
+    
     class Meta:
-        ordering = ["created_at"]
+        ordering = ["-created"]
+        db_table = "orders_table"
 
     @property
     def total_price(self):
@@ -35,15 +35,14 @@ class Order(models.Model):
 
 class OrderedDrug(AbstractDrug):
 
-    origindrug = models.ForeignKey(
-        Drug, null=True, related_name="origin_drug", on_delete=models.SET_NULL
-    )
+    drug_id = models.PositiveIntegerField()
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name="ordered_drugs"
     )
 
     class Meta:
         unique_together = ["order", "name"]
+        db_table = "ordered_drugs_db"
 
     def validate_unique(self, **kwargs) -> None:
         try:

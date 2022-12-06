@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class OrderappConfig(AppConfig):
+class OrdersAppConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "orderapp"
+    name = "orders_app"
 
     def ready(self) -> None:
-        import orderapp.signals
+        import orders_app.signals

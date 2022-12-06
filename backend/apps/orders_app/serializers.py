@@ -1,13 +1,15 @@
 from .models import OrderedDrug, Order
+from drugs_app.models import Drug
 from rest_framework import serializers
+from drf_queryfields.mixins import QueryFieldsMixin
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 
 class OrderedDrugSerialilzer(serializers.ModelSerializer):
     class Meta:
         model = OrderedDrug
         fields = (
-            "origindrug",
-            "order",
+            "drug_id",
             "name",
             "drug_price",
             "quantity",
@@ -15,34 +17,22 @@ class OrderedDrugSerialilzer(serializers.ModelSerializer):
             "exp_date",
         )
         read_only_fields = ("name", "drug_price", "price_per_quantity", "exp_date")
-        extra_kwargs = {
-            "order": {"write_only": True, "required": False},
-        }
 
-    def create(self, validated_data):
-        order = validated_data.pop("order")
-        drug = validated_data.pop("origindrug")
-        quantity = validated_data.pop("quantity")
-        ordered_drug = OrderedDrug.objects.create(
-            order=order,
-            origindrug=drug,
-            name=drug.name,
-            drug_price=drug.drug_price,
-            quantity=quantity,
-            exp_date=drug.exp_date,
-        )
-        return ordered_drug
 
     def validate(self, attrs):
-        print("attrs", attrs)
-        drug = attrs.pop("origindrug")
-        attrs["origindrug"] = drug.id
-        data = super().validate(attrs)
-        data["origindrug"] = drug
+        drug_id = attrs.get("drug_id")
+        drug = Drug.objects.get(id=drug_id)
+        data = {
+            'drug_id':drug_id,
+            'name':drug.name,
+            'drug_price':drug.drug_price,
+            'quantity':attrs.get('quantity'),
+            'exp_date':drug.exp_date,
+        }
         return data
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderSerializer(QueryFieldsMixin, WritableNestedModelSerializer):
 
     ordered_drugs = OrderedDrugSerialilzer(many=True)
 
@@ -52,29 +42,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "status",
             "user",
             "description",
-            "updated_at",
-            "created_at",
             "ordered_drugs",
+            "created",
+            "modified",
         )
-        read_only_fields = ("status", "created_at", "updated_at", "total_price")
-        ...
-
-    def create_ordered_drugs(self, ordered_drugs: dict, order):
-        for ordered_drug in ordered_drugs:
-            ordered_drug["order"] = order.id
-            ordered_drug["origindrug"] = ordered_drug["origindrug"].id
-            serializer = OrderedDrugSerialilzer(data=ordered_drug)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-
-    def create(self, validated_data):
-        ordered_drugs = validated_data.pop("ordered_drugs")
-        order = super().create(validated_data)
-        self.create_ordered_drugs(ordered_drugs, order)
-        return order
-
-    def update(self, instance, validated_data):
-        ordered_drugs = validated_data.pop("ordered_drugs")
-        OrderedDrug.objects.filter(order=instance).delete()
-        self.create_ordered_drugs(ordered_drugs, instance)
-        return super().update(instance, validated_data)
+        read_only_fields = ("status", "created", "modified", "total_price")

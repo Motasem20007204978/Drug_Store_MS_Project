@@ -11,25 +11,24 @@ services:
       - db:/data/postgresql
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - DB_NAME={DB_NAME}
-      - DB_USER='{DB_USER}'
-      - DB_PASSWORD={DB_PASSWORD}
+      - DB_NAME={DB_NAME:-postgres}
+      - DB_USER='{DB_USER:-postgres}'
+      - DB_PASSWORD={DB_PASSWORD:-password}
     networks:
-      - db
+      - net
 
   web: # any name
     build: 
       context: backend
       dockerfile: dockerfile
     container_name: backend
-    restart: always
     command: >
-     sh -c "env/bin/python manage.py makemigrations &&
-            env/bin/python manage.py waitfordb &&
-            env/bin/python manage.py migrate &&
-            env/bin/python manage.py runserver 0.0.0.0:5000"
+     sh -c "python manage.py makemigrations &&
+            python manage.py waitfordb &&
+            python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:5000"
     volumes:
-      - .:/data/backend #get the real-time updates that we makes it to the project into the image
+      - ./backend:/app/ #get the real-time updates that we makes it to the project into the image
     ports:
       - "5000:5000"
     image: web:django # run the image with django tag
@@ -37,12 +36,12 @@ services:
       - ./.env
     depends_on:
       - database
+      - redis
     links:
       - database:db
+      - redis
     networks:
-      - db
       - net
-
 
   redis: # Remote Dictionary Server.
     image: redis:alpine
@@ -54,40 +53,45 @@ services:
     networks:
       - net
 
-
   celery:
     container_name: celery
     image: web:django
     restart: always # restart container automatically if it is stopped manually or fails
-    command: env/bin/python -m celery -A social_media_project worker -l INFO # get information in terminal
+    command: celery -A drug_store worker -l INFO # get information in terminal
+    links:
+      - database
+      - redis
+    volumes:
+      - ./backend:/app/
     depends_on:
-      - web
+      - database
       - redis
     env_file:
       - ./.env
     networks:
       - net
-      - db 
     
   celery-beat: 
     container_name: celery_beat
     image: web:django
     restart: always
-    command: env/bin/python -m celery -A social_media_project beat -l INFO
+    command: celery -A drug_store beat -l INFO
+    volumes:
+      - ./backend:/app/
     env_file:
       - ./.env
     depends_on:
       - celery
     links:
-      - database:db
+      - database
+      - redis
     networks:
       - net
-      - db 
 
   flower:
     image: mher/flower
     container_name: flower
-    command: env/bin/python -m celery flower --persisten=True 
+    command: celery flower --persisten=True 
     # persist our data in flower so that it didn’t go away on every restart of container 
     ports:
       - 5555:5555
@@ -96,33 +100,14 @@ services:
     depends_on:
       - celery
     links:
-      - database:db 
+      - database:db
+      - celery
+      - celery-beat
     networks:
       - net
-      - flower_prome
-    
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    restart: always
-    ports:
-      - 9090:9090
-    volumes:
-      - ./monitor.yml:/etc/prometheus/prometheus.yml 
-    links:
-      - flower:flower 
-    depends_on:
-      - flower
-    networks:
-      - flower_prome
-
-
-
+   
 networks:
-  db: 
   net:
-  flower_prome:
-
 
 volumes:
   db: 

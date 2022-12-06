@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from .managers import CustomUserManager
 from django.utils.translation import gettext_lazy as _
 from uuid import uuid4
 import os
@@ -11,6 +10,7 @@ from django.utils.encoding import smart_bytes
 from rest_framework.exceptions import ValidationError
 
 # Create your models here.
+
 
 @deconstructible
 class PathAndRename(object):
@@ -25,6 +25,11 @@ class PathAndRename(object):
 
 
 class User(AbstractUser):
+    id = models.UUIDField(default=uuid4, editable=False, primary_key=True)
+    email = models.EmailField(
+        unique=True,
+        verbose_name="email address",
+    )
     picture = models.ImageField(
         upload_to=PathAndRename("profile_pic/"),
         blank=True,
@@ -32,23 +37,15 @@ class User(AbstractUser):
         verbose_name="profile picture",
         default="default-image.jpg",
     )
-    is_active = models.BooleanField(
-        _("active"),
-        default=False,
-        help_text=_(
-            "Designates whether this user should be treated as active. "
-            "Unselect this instead of deleting accounts."
-        ),
-    )
+    location = models.CharField(max_length=200, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    USERNAME_FIELD = ("email")
-    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
-    objects = CustomUserManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ("username", "first_name", "last_name")
 
     def __str__(self):
-        return self.code
-    
+        return self.username
+
     @property
     def full_name(self) -> str:
         return super().get_full_name()
@@ -83,3 +80,7 @@ class User(AbstractUser):
     def activate(self):
         self.is_active = True
         self.save()
+
+    class Meta(AbstractUser.Meta):
+        ordering = ["-date_joined"]
+        db_table = "users_db"

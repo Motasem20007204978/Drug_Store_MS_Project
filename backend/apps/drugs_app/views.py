@@ -1,19 +1,16 @@
 from .serializers import DrugSerializer
 from .models import Drug
 from rest_framework.generics import (
-    ListCreateAPIView,
-    RetrieveUpdateAPIView,
     get_object_or_404,
     GenericAPIView,
 )
+from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin, ListModelMixin, CreateModelMixin
 from rest_framework.response import Response
 from .store_csv import CSVFiles
 import csv, os
-from .filters import DrugFilter
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from orderapp.models import Order
+from orders_app.models import Order
 
 
 class AbstractView(GenericAPIView):
@@ -23,10 +20,11 @@ class AbstractView(GenericAPIView):
     authentication_classes = [JWTAuthentication]
 
 
-class ListCreateDrugView(AbstractView, ListCreateAPIView):
+class ListCreateDrugView(AbstractView, ListModelMixin, RetrieveModelMixin):
 
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = DrugFilter
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_staff:
@@ -67,13 +65,16 @@ class ListCreateDrugView(AbstractView, ListCreateAPIView):
         return Response({"message": "the file data is uploaded successfully"})
 
 
-class OneDrugView(AbstractView, RetrieveUpdateAPIView):
+class OneDrugView(AbstractView, RetrieveModelMixin, UpdateModelMixin):
     def get_object(self):
         drug_id = self.kwargs["drug_id"]
         drug = get_object_or_404(Drug, pk=drug_id)
         return drug
 
-    def update(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
         if request.user.is_staff:
-            return super().update(request, *args, **kwargs)
+            return self.partial_update(request, *args, **kwargs)
         return Response({"message": "this user is not admin"})

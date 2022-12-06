@@ -1,7 +1,8 @@
 from .models import OrderedDrug, Order
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
-from notification.utils import create_notfication
+
+# from notification.utils import create_notfication
 from rest_framework.exceptions import ValidationError
 
 
@@ -28,7 +29,7 @@ def send_notification(sender, instance, *args, **kwargs):
         "user": instance.user,
         "payload": f"Order with ID {instance.id} have some updates!",
     }
-    create_notfication(data)
+    # create_notfication(data)
 
 
 @receiver(post_save, sender=OrderedDrug)

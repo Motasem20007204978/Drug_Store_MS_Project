@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from .models import Drug
+from drf_queryfields.mixins import QueryFieldsMixin
 
 
-class DrugSerializer(serializers.ModelSerializer):
+class DrugSerializer(QueryFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Drug
         fields = "__all__"

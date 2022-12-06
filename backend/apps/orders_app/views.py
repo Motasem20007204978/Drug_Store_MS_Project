@@ -1,11 +1,7 @@
 from .serializers import OrderSerializer
-from rest_framework.generics import (
-    ListCreateAPIView,
-    RetrieveUpdateAPIView,
-    get_object_or_404,
-    ListAPIView,
-    GenericAPIView,
-)
+from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.mixins import (ListModelMixin, 
+UpdateModelMixin, CreateModelMixin, RetrieveModelMixin)
 from .models import Order, User
 from rest_framework.response import Response
 import csv
@@ -25,9 +21,9 @@ class AbstractView(GenericAPIView):
     authentication_classes = [JWTAuthentication]
 
 
-class ListCreateOrder(AbstractView, ListCreateAPIView):
+class ListCreateOrder(AbstractView, ListModelMixin, CreateModelMixin):
     def get_pharmacy(self):
-        code = self.request.resolver_match.kwargs.get("code")
+        code = self.request.resolver_match.kwargs.get("username")
         pharmacy = get_object_or_404(User, code=code)
         return pharmacy
 
@@ -40,24 +36,27 @@ class ListCreateOrder(AbstractView, ListCreateAPIView):
         if status:
             queryset = queryset.filter(status=status)
         return queryset
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         if request.user != self.get_pharmacy():
             return Response({"message": "cannot create order for another user"})
         if request.user.is_staff:
             return Response({"message": "staff user cannot make orders"})
-        return super().create(request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
 
-class ListOrders(AbstractView, ListAPIView):
+class ListOrders(AbstractView, ListModelMixin):
     def get_queryset(self):
         filters = self.request.query_params.dict()
         return self.queryset.filter(**filters)
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if not request.user.is_staff:
             return Response({"message": "admin only can get all orders"})
-        return super().list(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
 
 
 class ExtractOrders(ListOrders):
@@ -90,7 +89,7 @@ class ExtractOrders(ListOrders):
         return response
 
 
-class ModifyOrder(RetrieveUpdateAPIView, AbstractView):
+class ModifyOrder(AbstractView, RetrieveModelMixin, UpdateModelMixin):
     def get_pharmacy(self):
         code = self.request.resolver_match.kwargs.get("code")
         pharmacy = get_object_or_404(User, code=code)
@@ -106,14 +105,14 @@ class ModifyOrder(RetrieveUpdateAPIView, AbstractView):
         print(request.user, "user")
         if self.get_pharmacy() != request.user or not request.user.is_staff:
             return Response({"message": "cannot get another pharmacy orders"})
-        return super().get(request, *args, **kwargs)
+        return self.retrieve(request, *args, **kwargs)
 
-    def update(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         if self.get_pharmacy() != request.user:
             return Response({"message": "cannot update another pharmacy orders"})
         if self.get_object().status != "PE":
             return Response({"message": "can update when order is pinned"})
-        return super().update(request, *args, **kwargs)
+        return self.partial_update(request, *args, **kwargs)
 
 
 class StatusOrderView(AbstractView, APIView):
