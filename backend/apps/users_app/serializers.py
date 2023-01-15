@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import User
 from drf_base64.fields import Base64ImageField
 from drf_queryfields.mixins import QueryFieldsMixin
+from django.utils.crypto import get_random_string
 
 
 class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
@@ -12,6 +13,7 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         model = User
         fields = (
             "username",
+            "email",
             "full_name",
             "picture",
             "location",
@@ -31,10 +33,9 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data["username"],
-        )
-        user.set_password(validated_data["password"])
+        user = self.Meta.model(**validated_data)
+        password = get_random_string(10)
+        user.set_password(password)
         user.save()
         return user
 

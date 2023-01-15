@@ -1,3 +1,0 @@
-to get path parameters:
-	request.resolver_match.args    # positional parameters (tuple)
-	request.resolver_match.kwargs  # named parameters (dictionary)

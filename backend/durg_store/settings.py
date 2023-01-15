@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -36,6 +36,7 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 # Application definition
 
 DEFAULT_APPS = [
+    'daphne',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,19 +54,51 @@ THIRD_APRTY_APSS = [
     "django_extensions",
     "rest_framework_simplejwt.token_blacklist",
     "drf_queryfields",
+    "django_prometheus",
+    "django_redis",
+    "channels",
 ]
 
 LOCAL_APPS = [
     "users_app.apps.UsersAppConfig",
     "drugs_app.apps.DrugsAppConfig",
     "orders_app.apps.OrdersAppConfig",
+    "notifications_app.apps.NotificationsAppConfig",
 ]
 
 INSTALLED_APPS = LOCAL_APPS + DEFAULT_APPS + THIRD_APRTY_APSS
 
 SITE_ID = 1
 
+SHELL_PLUS = 'ipython'
+
+
+PROMETHEUS_LATENCY_BUCKETS = (
+    0.1,
+    0.2,
+    0.5,
+    0.6,
+    0.8,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.5,
+    9.0,
+    12.0,
+    15.0,
+    20.0,
+    30.0,
+    float("inf"),
+)
+
+PROMETHEUS_EXPORT_MIGRATIONS = False  # to avoid migrations dependencies
+
+
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -73,6 +106,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 
@@ -121,7 +155,7 @@ SPECTACULAR_SETTINGS = {
     "PARSER_WHITELIST": ["rest_framework.parsers.JSONParser"],
     # OTHER SETTINGS
     "TITLE": "Social Media API",
-    "DESCRIPTION": "this is the social media API description",
+    "DESCRIPTION": "This API is made with django and rest framework to simulate drug store management system",
     "AUTHOR": "Social Media API",
     "VERSION": "1.0.0 (v1)",
     "LICENSE": {
@@ -132,6 +166,24 @@ SPECTACULAR_SETTINGS = {
         "name": "Author ",
         "email": "motasemalmobayyed@gmail.com",
     },
+    "EXTERNAL_DOCS": {
+        "url": "https://github.com/Motasem20007204978/Drug_Store_API",
+        "description": "Drug Store API Source Code",
+    },
+    "SORT_OPERATIONS": False,
+    "SORT_OPERATION_PARAMETERS": False,
+    "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
+    "SERVERS": [
+        {"url": "http://localhost", "description": "API Server"},
+        {
+            "url": "http://localhost:5555",
+            "description": "Flower Server For Executed Tasks",
+        },
+        {
+            "url": "http://localhost:9090",
+            "description": "Prometheus Server For Monitoring Requests",
+        },
+    ],
     "COMPONENT_SPLIT_REQUEST": True,
     "GENERIC_ADDITIONAL_PROPERTIES": "dict",
 }
@@ -142,11 +194,18 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+    "SWAGGER_UI_SETTINGS": {
+        "url": "/schema",  # relative path
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
+    },
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
     "UPDATE_LAST_LOGIN": True,  # for TokenObtainBairView
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
@@ -156,22 +215,40 @@ SIMPLE_JWT = {
 }
 
 # celery settings
-CELERY_BROKER_URL = config("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")  # for caching
+CELERY_BROKER_URL = "redis://"
+CELERY_RESULT_BACKEND = "redis://"  # for caching
 CELERY_TIMEZONE = "Asia/Gaza"
 
 # redis (remote dictionary server) for caching
 CHACHE = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config("CELERY_RESULT_BACKEND"),
-        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
-        "KEY_PREFIX": "example",
+        "LOCATION": "redis://",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": 2000,
+        },
+        "KEY_PREFIX": "API",
     }
 }
 # to make redis does not interfere with django admin panel and current session
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+            "symmetric_encryption_keys": [SECRET_KEY],
+        },
+    }
+}
+
+
+ASGI_APPLICATION = "drug_store.routing.application"
+
 
 
 # Password validation

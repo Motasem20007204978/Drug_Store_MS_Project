@@ -8,61 +8,80 @@ from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin, ListMode
 from rest_framework.response import Response
 from .store_csv import CSVFiles
 import csv, os
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from orders_app.models import Order
+from rest_framework.parsers import FileUploadParser
 
 
 class AbstractView(GenericAPIView):
     serializer_class = DrugSerializer
     queryset = Drug.objects.all()
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+
+    def check_staff_permission(self, request):
+        if not request.user.is_staff:
+            return self.permission_denied(request)
 
 
-class ListCreateDrugView(AbstractView, ListModelMixin, RetrieveModelMixin):
+class ListCreateDrugView(AbstractView, ListModelMixin, CreateModelMixin):
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-
     def post(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return Response({"message": "this user is not admin"})
+        self.check_staff_permission(request)
+        return self.create(request, *args, **kwargs)
 
-        # some logic to get data from csv file
-        # get data from csv file
-        csv_file = CSVFiles(request).get_csv_file()
 
+class FileUploadView(AbstractView):
+
+    parser_classes = (FileUploadParser,)
+
+    def perform_deletion(self):
         # delete database
         self.get_queryset().delete()
-        # reject all orders after deleting
-        Order.objects.all().update(status="RE")
 
+    def extract_data(self, row):
+        data = {
+            "name": row["name"],
+            "quantity": row["quantity"],
+            "exp_date": row["expiration_date"],
+            "drug_price": row["price"],
+        }
+        return data 
+    
+    def gather_exceptions(self, exps, **kwargs):
+        error = {
+            "data": kwargs['data'],
+            "line": kwargs['line_num'],
+            "errors": kwargs['serializer'].errors,
+        }
+        exps.append(error)
+        return exps 
+
+    def perform_creation(self, csv_file):
         with open(csv_file) as f_data:
             reader = csv.DictReader(f_data)
             exceptions = []
             for n, row in enumerate(reader, start=1):
-                data = {
-                    "name": row["name"],
-                    "quantity": row["quantity"],
-                    "exp_date": row["expiration_date"],
-                    "drug_price": row["price"],
-                }
-                serializer = DrugSerializer(data=data)
+                data = self.extract_data(row)
+                serializer = self.get_serializer(data=data)
                 if not serializer.is_valid():
-                    error = {
-                        "data": data,
-                        "line": n,
-                        "errors": serializer.errors,
-                    }
-                    exceptions.append(error)
+                    exceptions = self.gather_exceptions(exceptions, line_num=n, data=data, serializer=serializer)
                     continue
                 serializer.save()
         os.remove(csv_file)  # remove csv file after get data
         if exceptions:
             return Response({"exceptions": exceptions})
+
+    def post(self, request, *args, **kwargs):
+        self.check_staff_permission(request)
+        self.perform_deletion()
+
+        # some logic to get data from csv file
+        # get data from csv file
+        csv_file = CSVFiles(request).get_csv_file()
+        self.perform_creation(csv_file)
+        
         return Response({"message": "the file data is uploaded successfully"})
+
 
 
 class OneDrugView(AbstractView, RetrieveModelMixin, UpdateModelMixin):

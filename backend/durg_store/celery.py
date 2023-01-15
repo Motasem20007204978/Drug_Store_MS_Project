@@ -36,10 +36,6 @@ message brokers can be used with celery:
 from datetime import timedelta
 
 app.conf.beat_schedule = {
-    "delete-inactivated-users": {
-        "task": "delete_inactivated_users",
-        "schedule": timedelta(days=1),
-    },
     "delete-expired-tokens": {
         "task": "delete_expired_tokens",
         "schedule": timedelta(days=2),

@@ -1,13 +1,14 @@
+from drugs_app.models import Drug
 from .models import OrderedDrug, Order
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
-
-# from notification.utils import create_notfication
+from notifications_app.tasks import create_notification
 from rest_framework.exceptions import ValidationError
-
+from django.db.transaction import on_commit
+from .tasks import set_drug_quantity
 
 @receiver(pre_save, sender=Order)
-def cant_edit_cancelled(sender, instance, *args, **kwargs):
+def cant_edit_cancelled(instance, **kwargs):
     if not instance.id:
         return
     previous_status = Order.objects.filter(pk=instance.pk).first().status
@@ -16,24 +17,19 @@ def cant_edit_cancelled(sender, instance, *args, **kwargs):
 
 
 @receiver(post_save, sender=Order)
-def rollback_quantity(sender, instance, *args, **kwargs):
-    if instance.status == "CA":
-        related_drugs = instance.ordered_drugs.all()
-        for drug in related_drugs:
-            drug.set_quantity(drug.quantity)
-
+def rollback_quantity(instance, **kwargs):
+    on_commit(lambda: set_drug_quantity.delay(instance.id))
+    
 
 @receiver(post_save, sender=Order)
-def send_notification(sender, instance, *args, **kwargs):
-    data = {
-        "user": instance.user,
-        "payload": f"Order with ID {instance.id} have some updates!",
-    }
-    # create_notfication(data)
+def send_notification(instance, created, **kwargs):
+    if created:
+        data = {
+            "sender_id": instance.user.id,
+            "options": {
+                'message': f'the user {instance.user.full_name} asks order',
+                'order_id': instance.id
+            },
+        }
+        on_commit(lambda: create_notification.delay(**data))
 
-
-@receiver(post_save, sender=OrderedDrug)
-def set_drug_quantity(sender, instance, *args, **kwargs):
-    drug = instance.origindrug
-    if instance.status == "PE":
-        drug.set_quantity(-instance.quantity)

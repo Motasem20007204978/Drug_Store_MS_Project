@@ -26,11 +26,18 @@ class Order(TimeStampedModel):
         db_table = "orders_table"
 
     @property
-    def total_price(self):
+    def total_price(self) -> int:
         total_price = 0
         for drug in self.ordered_drugs.all():
             total_price += float(drug.total_drug_price)
         return total_price
+
+    def set_status(self, status):
+        self.status = status
+        self.save()
+
+    def is_rejected(self):
+        return self.status == 'RE'
 
 
 class OrderedDrug(AbstractDrug):

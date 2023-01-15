@@ -7,22 +7,35 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/schema", SpectacularAPIView.as_view(), name="schema"),
     # Optional UI:
     path(
-        "schema/swagger-ui/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
+        "api/swagger-ui/",
+        SpectacularSwaggerView.as_view(),
         name="swagger-ui",
     ),
     path(
-        "schema/redoc/",
-        SpectacularRedocView.as_view(url_name="schema"),
+        "api/redoc/",
+        SpectacularRedocView.as_view(),
         name="redoc",
     ),
-    path("admin/", admin.site.urls),
-    path("users_api/", include("users_app.urls")),
-    path("drugs_api/", include("drugs_app.urls")),
-    path("orders_api/", include("orders_app.urls")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("api/admin/", admin.site.urls),
+    path(
+        "api/apps/",
+        include(
+            [
+                path("users/", include("users_app.urls")),
+                path("drugs/", include("drugs_app.urls")),
+                path("orders/", include("orders_app.urls")),
+                path("api-auth/", include("rest_framework.urls")),
+            ]
+        ),
+    ),
+    path("api/", include("django_prometheus.urls")),
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += staticfiles_urlpatterns()
