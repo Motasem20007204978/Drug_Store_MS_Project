@@ -1,10 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import ValidationError
-from drugs_app.models import Drug, AbstractDrug
-from rest_framework.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-from django_extensions.db.models import TimeStampedModel
+from django.core.exceptions import ValidationError
+from drugs_app.models import Drug, TimeStampedModel
+from django.conf import settings
 
 
 User = get_user_model()
@@ -14,16 +12,15 @@ class Order(TimeStampedModel):
     STATUS = (
         ("PE", "Pending"),
         ("CO", "Completed"),
-        ("RE", "Rejected"),
-        ("CA", "Canceled"),
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
-    status = models.CharField(default="Pinned", choices=STATUS, max_length=2)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders"
+    )
+    status = models.CharField(default="Pending", choices=STATUS, max_length=2)
     description = models.TextField()
-    
+
     class Meta:
-        ordering = ["-created"]
-        db_table = "orders_table"
+        db_table = "orders_db"
 
     @property
     def total_price(self) -> int:
@@ -36,19 +33,19 @@ class Order(TimeStampedModel):
         self.status = status
         self.save()
 
-    def is_rejected(self):
-        return self.status == 'RE'
 
+class OrderedDrug(models.Model):
 
-class OrderedDrug(AbstractDrug):
-
-    drug_id = models.PositiveIntegerField()
+    drug = models.ForeignKey(
+        Drug, on_delete=models.CASCADE, related_name="related_orders"
+    )
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name="ordered_drugs"
     )
+    quantity = models.PositiveIntegerField()
 
     class Meta:
-        unique_together = ["order", "name"]
+        unique_together = ["order", "drug"]
         db_table = "ordered_drugs_db"
 
     def validate_unique(self, **kwargs) -> None:
@@ -59,15 +56,15 @@ class OrderedDrug(AbstractDrug):
 
     @property
     def total_drug_price(self):
-        return "%.2f" % (float(self.drug_price) * int(self.quantity))
+        return "%.2f" % (float(self.drug.drug_price) * int(self.quantity))
 
     def clean(self):
         if self.quantity < 1:
             raise ValidationError("The quantity must be above or equal 1")
 
-        if self.quantity > self.origindrug.quantity:
+        if self.quantity > self.drug.quantity:
             raise ValidationError(
-                _(f"Please add quantity value lower than {self.origindrug.quantity}")
+                f"Please add quantity value lower than {self.drug.quantity}"
             )
 
     def save(self, *args, **kwargs) -> None:

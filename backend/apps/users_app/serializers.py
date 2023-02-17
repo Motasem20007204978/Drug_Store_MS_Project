@@ -1,9 +1,9 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from .models import User
 from drf_base64.fields import Base64ImageField
 from drf_queryfields.mixins import QueryFieldsMixin
 from django.utils.crypto import get_random_string
+from .tasks import send_password
 
 
 class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
@@ -32,28 +32,13 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
             "last_name": {"write_only": True},
         }
 
+    def send_user_password(self, email, password):
+        send_password.delay(email, password)
+
     def create(self, validated_data):
         user = self.Meta.model(**validated_data)
         password = get_random_string(10)
         user.set_password(password)
         user.save()
+        self.send_user_password(user.email, password)
         return user
-
-
-class LoginSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        pharmacy_data = {
-            "id": self.user.id,
-            "username": self.user.username,
-            "email": self.user.email,
-            "full_name": self.user.full_name,
-            "is_staff": self.user.is_staff,
-        }
-        context = {
-            "access": data["access"],
-            "refresh": data["refresh"],
-            "pharmacy": pharmacy_data,
-        }
-
-        return context

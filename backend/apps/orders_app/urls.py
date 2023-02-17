@@ -8,9 +8,9 @@ from .views import (
 )
 
 urlpatterns = [
-    path("all", ListOrders.as_view(), name="all-orders"),
-    path("all/extract", ExtractOrders.as_view()),
-    path("<int:order_id>/set-status", StatusOrderView.as_view()),
+    path("", ListOrders.as_view(), name="all-orders"),
+    path("extract", ExtractOrders.as_view()),
     path("<str:username>", ListCreateOrder.as_view()),
     path("<str:username>/<int:order_id>", ModifyOrder.as_view(), name="order-details"),
+    path("<int:order_id>/status", StatusOrderView.as_view()),
 ]

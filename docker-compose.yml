@@ -1,20 +1,6 @@
 version: "3"
    
 services:
-  database: # any name
-    image: postgres:alpine
-    container_name: pg_db
-    restart: always
-    ports:
-      - '5432:5432'
-    volumes:
-      - db:/data/postgresql
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - DB_NAME={DB_NAME}
-      - DB_USER='{DB_USER}'
-      - DB_PASSWORD={DB_PASSWORD}
-    network_mode: host
 
   web: # any name
     build: 
@@ -23,7 +9,6 @@ services:
     container_name: backend
     command: >
      sh -c "python manage.py makemigrations &&
-            python manage.py waitfordb &&
             python manage.py migrate &&
             gunicorn -k uvicorn.workers.UvicornWorker drug_store.asgi:application --bind 0.0.0.0:5000"
     volumes:
@@ -36,7 +21,6 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - database
       - redis
     network_mode: host
 
@@ -124,7 +108,6 @@ services:
 
 
 volumes:
-  db: 
   redis:
   web:
   static_volume:

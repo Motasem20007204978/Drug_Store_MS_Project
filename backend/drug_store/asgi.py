@@ -1,5 +1,5 @@
 """
-ASGI config for social_media_project project.
+ASGI config for drug_store project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,7 +11,7 @@ import os
 from channels.routing import get_default_application
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "social_media_project.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "drug_store.settings")
 django.setup()
 
 application = get_default_application()

@@ -6,8 +6,15 @@ from drf_queryfields.mixins import QueryFieldsMixin
 class DrugSerializer(QueryFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Drug
-        fields = "__all__"
-        read_only_fields = ("id", "created_at", "updated_at")
+        fields = (
+            "name",
+            "quantity",
+            "drug_price",
+            "exp_date",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = ("created_at", "updated_at")
         extra_kwargs = {
             "name": {"required": False},
             "quantity": {"required": False},

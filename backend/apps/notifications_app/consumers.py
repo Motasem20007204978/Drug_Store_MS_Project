@@ -32,4 +32,3 @@ class NotificationConsumer(WebsocketConsumer):
         notif_id = event.get("notification_id")
         payload = json.dumps({"action": "delete", "notification_id": notif_id})
         self.send(text_data=payload)
-

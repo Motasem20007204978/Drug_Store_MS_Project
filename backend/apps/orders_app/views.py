@@ -1,15 +1,16 @@
 from .serializers import OrderSerializer
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from rest_framework.mixins import (ListModelMixin, 
-UpdateModelMixin, CreateModelMixin, RetrieveModelMixin)
+from rest_framework.mixins import (
+    ListModelMixin,
+    UpdateModelMixin,
+    CreateModelMixin,
+    RetrieveModelMixin,
+)
 from .models import Order, User
 from rest_framework.response import Response
 import csv
 from django.http import HttpResponse
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 
 # Create your views here.
 
@@ -17,8 +18,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class AbstractView(GenericAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
 
 
 class ListCreateOrder(AbstractView, ListModelMixin, CreateModelMixin):
@@ -30,21 +29,21 @@ class ListCreateOrder(AbstractView, ListModelMixin, CreateModelMixin):
     def filter_queryset(self, queryset):
         pharmacy = self.get_pharmacy()
         if pharmacy != self.request.user or not self.request.user.is_staff:
-            return Response({"message": "cannot get another pharmacy orders"})
+            return self.permission_denied()
         queryset = queryset.filter(user=pharmacy)
         status = self.request.GET.get("status")
         if status:
             queryset = queryset.filter(status=status)
         return queryset
-    
+
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.user != self.get_pharmacy():
-            return Response({"message": "cannot create order for another user"})
+            return self.permission_denied()
         if request.user.is_staff:
-            return Response({"message": "staff user cannot make orders"})
+            return self.permission_denied()
         return self.create(request, *args, **kwargs)
 
 
@@ -55,7 +54,7 @@ class ListOrders(AbstractView, ListModelMixin):
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_staff:
-            return Response({"message": "admin only can get all orders"})
+            return self.permission_denied()
         return self.list(request, *args, **kwargs)
 
 

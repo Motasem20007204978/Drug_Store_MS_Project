@@ -7,13 +7,6 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # prevent buffering stdout and stderr
 ENV PYTHONUNBUFFERED=1
 
-# install postgres client to interact with postgres
-RUN apk update && apk upgrade
-RUN apk add --update --no-cache postgresql-client jpeg-dev 
-RUN apk add --update --no-cache --virtual .tmp-build-deps \
-    gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev
-
-
 WORKDIR /webproject
 
 COPY . /webproject/

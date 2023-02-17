@@ -4,11 +4,24 @@ from rest_framework.generics import (
     get_object_or_404,
     GenericAPIView,
 )
-from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin, ListModelMixin, CreateModelMixin
+from rest_framework.mixins import (
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    ListModelMixin,
+    CreateModelMixin,
+)
 from rest_framework.response import Response
 from .store_csv import CSVFiles
 import csv, os
 from rest_framework.parsers import FileUploadParser
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+)
+from drf_spectacular.types import OpenApiTypes
 
 
 class AbstractView(GenericAPIView):
@@ -20,8 +33,25 @@ class AbstractView(GenericAPIView):
             return self.permission_denied(request)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        description="takes fields and return drugs' data according to fields to be returned",
+        operation_id="list drugs",
+        tags=["drugs"],
+        parameters=[
+            OpenApiParameter(
+                name="fields",
+                description="select fields you want to be represented, otherwise it will return all fields",
+            ),
+        ],
+    ),
+    post=extend_schema(
+        description="take json data for a drug and add it",
+        operation_id="add a drug",
+        tags=["drugs"],
+    ),
+)
 class ListCreateDrugView(AbstractView, ListModelMixin, CreateModelMixin):
-
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
@@ -30,6 +60,30 @@ class ListCreateDrugView(AbstractView, ListModelMixin, CreateModelMixin):
         return self.create(request, *args, **kwargs)
 
 
+@extend_schema_view(
+    post=extend_schema(
+        description="extract csv file data for drugs and add it",
+        operation_id="add drugs",
+        # request={
+        #     "multipart/form-data": {
+        #         "type": "object",
+        #         "properties": {"file": OpenApiTypes.BINARY},
+        #     }
+        # },
+        tags=["drugs"],
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                examples=[
+                    OpenApiExample(
+                        name="add csv data",
+                        value={"message": "the file data is uploaded successfully"},
+                    )
+                ],
+            )
+        },
+    ),
+)
 class FileUploadView(AbstractView):
 
     parser_classes = (FileUploadParser,)
@@ -45,16 +99,16 @@ class FileUploadView(AbstractView):
             "exp_date": row["expiration_date"],
             "drug_price": row["price"],
         }
-        return data 
-    
+        return data
+
     def gather_exceptions(self, exps, **kwargs):
         error = {
-            "data": kwargs['data'],
-            "line": kwargs['line_num'],
-            "errors": kwargs['serializer'].errors,
+            "data": kwargs["data"],
+            "line": kwargs["line_num"],
+            "errors": kwargs["serializer"].errors,
         }
         exps.append(error)
-        return exps 
+        return exps
 
     def perform_creation(self, csv_file):
         with open(csv_file) as f_data:
@@ -64,7 +118,9 @@ class FileUploadView(AbstractView):
                 data = self.extract_data(row)
                 serializer = self.get_serializer(data=data)
                 if not serializer.is_valid():
-                    exceptions = self.gather_exceptions(exceptions, line_num=n, data=data, serializer=serializer)
+                    exceptions = self.gather_exceptions(
+                        exceptions, line_num=n, data=data, serializer=serializer
+                    )
                     continue
                 serializer.save()
         os.remove(csv_file)  # remove csv file after get data
@@ -79,11 +135,28 @@ class FileUploadView(AbstractView):
         # get data from csv file
         csv_file = CSVFiles(request).get_csv_file()
         self.perform_creation(csv_file)
-        
+
         return Response({"message": "the file data is uploaded successfully"})
 
 
-
+@extend_schema_view(
+    get=extend_schema(
+        operation_id="get drug data",
+        tags=["drugs"],
+        description="get drug data by id",
+        parameters=[
+            OpenApiParameter(
+                name="fields",
+                description="select fields you want to be represented, otherwise it will return all fields",
+            ),
+        ],
+    ),
+    patch=extend_schema(
+        operation_id="updata drug data",
+        tags=["drugs"],
+        description="update user data by id",
+    ),
+)
 class OneDrugView(AbstractView, RetrieveModelMixin, UpdateModelMixin):
     def get_object(self):
         drug_id = self.kwargs["drug_id"]

@@ -37,9 +37,9 @@ def create_notification(sender_id, options: dict = None):
 @shared_task(name="send_notifications")
 def send_client_notification(notif_id):
     notif = Notification.objects.get(id=notif_id)
-    
+
     payload = {
-        'type':'send.notification',
+        "type": "send.notification",
         "notification_id": str(notif.id),
         "sender_id": str(notif.sender.id),
         "data": notif.data,
@@ -58,9 +58,10 @@ def delete_notifications(obj_id, search_word: str):
 @shared_task(name="delete_from_client_side")
 def delete_notification_client_side(notif_id, client_username):
     async_to_sync(channel_layer.group_send)(
-        client_username, {
-            'type':'delete.notification', # necessary to select method in consumer class
-            "notification_id": notif_id
-        }
+        client_username,
+        {
+            "type": "delete.notification",  # necessary to select method in consumer class
+            "notification_id": notif_id,
+        },
     )
     return "delete notification alert is sent successfully"

@@ -1,13 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.utils.translation import gettext_lazy as _
 from uuid import uuid4
-import os
-from django.utils.deconstruct import deconstructible
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import smart_bytes
-from rest_framework.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.deconstruct import deconstructible
+from django.contrib.auth.models import update_last_login
+import os
 
 # Create your models here.
 
@@ -25,44 +26,34 @@ class PathAndRename(object):
 
 
 class User(AbstractUser):
-    id = models.UUIDField(default=uuid4, editable=False, primary_key=True)
-    email = models.EmailField(
-        unique=True,
-        verbose_name="email address",
-    )
-    picture = models.ImageField(
+    id = models.UUIDField(primary_key=True, default=uuid4)
+    email = models.EmailField("email address", unique=True)
+    location = models.CharField(max_length=50)
+    profile_pic = models.ImageField(
         upload_to=PathAndRename("profile_pic/"),
         blank=True,
-        null=True,
         verbose_name="profile picture",
         default="default-image.jpg",
     )
-    location = models.CharField(max_length=200, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="updating date")
 
+    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ("username", "first_name", "last_name")
-
-    def __str__(self):
-        return self.username
 
     @property
-    def full_name(self) -> str:
-        return super().get_full_name()
+    def full_name(self):
+        return self.get_full_name()
+
+    @staticmethod
+    def get_user_from_uuid(uuid):
+        uid = urlsafe_base64_decode(uuid).decode()
+        user = get_object_or_404(User, id=uid)
+        return user
 
     def check_password(self, raw_password: str) -> bool:
         if not super().check_password(raw_password):
             raise ValidationError("user password is incorrect")
         return True
-
-    def check_email_activation(self):
-        if not self.is_active:
-            raise ValidationError(
-                _(
-                    "user is inactive (cannot be signed in)"
-                    " please check your email and active"
-                )
-            )
 
     def generate_uuid(self):
         uidb64 = urlsafe_base64_encode(smart_bytes(self.id))
@@ -72,15 +63,13 @@ class User(AbstractUser):
         token = default_token_generator.make_token(self)
         return token
 
-    def check_token(self, token):
+    def check_token_validation(self, token):
         if not default_token_generator.check_token(self, token):
-            return False
-        return True
+            raise ValidationError("token is invalid or expired")
 
-    def activate(self):
-        self.is_active = True
-        self.save()
+    def update_login(self):
+        update_last_login(None, user=self)
 
-    class Meta(AbstractUser.Meta):
-        ordering = ["-date_joined"]
+    class Meta:
         db_table = "users_db"
+        ordering = ["-date_joined"]

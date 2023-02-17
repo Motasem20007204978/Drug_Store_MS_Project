@@ -1,23 +1,47 @@
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_simplejwt.views import TokenObtainPairView
 from drugs_app.store_csv import CSVFiles
 from .models import User
 import csv, os
-from .serializers import UserSerializer, LoginSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
+from .serializers import UserSerializer
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateAPIView,
+)
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiParameter,
+    OpenApiExample,
+    OpenApiResponse,
+)
+from drf_spectacular.types import OpenApiTypes
 
 
-class LoginView(TokenObtainPairView):
-    serializer_class = LoginSerializer
-
-
+@extend_schema_view(
+    get=extend_schema(
+        operation_id="get user data",
+        tags=["users"],
+        description="get user data by username_validator",
+        parameters=[
+            OpenApiParameter(
+                name="fields",
+                description="select fields you want to be represented, otherwise it will return all fields",
+            ),
+        ],
+    ),
+    patch=extend_schema(
+        operation_id="updata user data",
+        tags=["users"],
+        description="update user data by username_validator, iff the authenticated user is the name's user",
+    ),
+)
 class UserView(RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     lookup_field = "username"
     queryset = User.objects.all()
-    http_method_names = ['get', 'patch']
+    http_method_names = ["get", "patch"]
 
     def get(self, request, username, *args, **kwargs):
         user = get_object_or_404(User, username=username)
@@ -32,11 +56,29 @@ class UserView(RetrieveUpdateAPIView):
         return super().patch(request, *args, **kwargs)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        description="takes fields and return users' data according to fields to be returned",
+        operation_id="list users",
+        tags=["users"],
+        parameters=[
+            OpenApiParameter(
+                name="fields",
+                description="select fields you want to be represented, otherwise it will return all fields",
+            ),
+        ],
+    ),
+    post=extend_schema(
+        description="take json data for a user and regiter it",
+        operation_id="register a user",
+        tags=["users"],
+    ),
+)
 class AddListUsers(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
     http_method_names = ["get", "post"]
-    
+
     def check_staff_permission(self, request):
         if not request.user.is_staff:
             return self.permission_denied(request)
@@ -48,8 +90,26 @@ class AddListUsers(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         self.check_staff_permission(request)
         return super().post(request, *args, **kwargs)
-        
 
+
+@extend_schema_view(
+    post=extend_schema(
+        description="extract csv file data for users and regiter it",
+        operation_id="register users",
+        tags=["users"],
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                examples=[
+                    OpenApiExample(
+                        name="register csv data",
+                        value={"message": "the file data is uploaded successfully"},
+                    )
+                ],
+            )
+        },
+    ),
+)
 class FileUploadView(GenericAPIView):
 
     queryset = User.objects.all()
@@ -70,16 +130,16 @@ class FileUploadView(GenericAPIView):
             "email": row["email"],
             "location": row["location"],
         }
-        return data 
-    
+        return data
+
     def gather_exceptions(self, exps, **kwargs):
         error = {
-            "data": kwargs['data'],
-            "line": kwargs['line_num'],
-            "errors": kwargs['serializer'].errors,
+            "data": kwargs["data"],
+            "line": kwargs["line_num"],
+            "errors": kwargs["serializer"].errors,
         }
         exps.append(error)
-        return exps 
+        return exps
 
     def perform_creation(self, csv_file):
         exceptions = []
@@ -89,13 +149,15 @@ class FileUploadView(GenericAPIView):
                 data = self.extract_data(row)
                 serializer = UserSerializer(data=data)
                 if not serializer.is_valid():
-                    exceptions = self.gather_exceptions(exceptions, line_num=n, data=data, serializer=serializer)
+                    exceptions = self.gather_exceptions(
+                        exceptions, line_num=n, data=data, serializer=serializer
+                    )
                     continue
                 serializer.save()
-            os.remove(csv_file)
-            if exceptions:
-                return Response({"exceptions": exceptions})
-    
+        os.remove(csv_file)
+        if exceptions:
+            return Response({"exceptions": exceptions})
+
     def post(self, request, *args, **kwargs):
         self.check_staff_permission(request)
         self.perform_deletion()
@@ -106,4 +168,4 @@ class FileUploadView(GenericAPIView):
         return Response(
             {"message": "the file data is uploaded successfully"},
             status=status.HTTP_201_CREATED,
-        )        
+        )

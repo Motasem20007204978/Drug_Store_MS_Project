@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from django.db.transaction import on_commit
 from .tasks import set_drug_quantity
 
+
 @receiver(pre_save, sender=Order)
 def cant_edit_cancelled(instance, **kwargs):
     if not instance.id:
@@ -19,7 +20,7 @@ def cant_edit_cancelled(instance, **kwargs):
 @receiver(post_save, sender=Order)
 def rollback_quantity(instance, **kwargs):
     on_commit(lambda: set_drug_quantity.delay(instance.id))
-    
+
 
 @receiver(post_save, sender=Order)
 def send_notification(instance, created, **kwargs):
@@ -27,9 +28,8 @@ def send_notification(instance, created, **kwargs):
         data = {
             "sender_id": instance.user.id,
             "options": {
-                'message': f'the user {instance.user.full_name} asks order',
-                'order_id': instance.id
+                "message": f"the user {instance.user.full_name} asks order",
+                "order_id": instance.id,
             },
         }
         on_commit(lambda: create_notification.delay(**data))
-
