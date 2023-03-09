@@ -11,10 +11,10 @@ class DrugSerializer(QueryFieldsMixin, serializers.ModelSerializer):
             "quantity",
             "drug_price",
             "exp_date",
-            "created_at",
-            "updated_at",
+            "created",
+            "modified",
         )
-        read_only_fields = ("created_at", "updated_at")
+        read_only_fields = ("created", "modified")
         extra_kwargs = {
             "name": {"required": False},
             "quantity": {"required": False},

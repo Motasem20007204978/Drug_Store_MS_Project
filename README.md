@@ -1,7 +1,7 @@
 
 # Drug Store Management System API
 
-## Contains auth, drugs, notifications, orders, ursers apps
+## Contains auth, drugs, notifications, orders, ursers, chats apps
 
 ### Developed a secure and reliable RESTful API for a social media platform, aimed at manage and optimize the operations of a drug store, orders, and customer management. Key features include drug tracking, order management, and financial reporting
 

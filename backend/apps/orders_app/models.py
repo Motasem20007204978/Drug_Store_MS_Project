@@ -10,13 +10,13 @@ User = get_user_model()
 
 class Order(TimeStampedModel):
     STATUS = (
-        ("PE", "Pending"),
-        ("CO", "Completed"),
+        ("Pending", "Pending"),
+        ("Completed", "Completed"),
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders"
     )
-    status = models.CharField(default="Pending", choices=STATUS, max_length=2)
+    status = models.CharField(default="Pending", choices=STATUS, max_length=10)
     description = models.TextField()
 
     class Meta:

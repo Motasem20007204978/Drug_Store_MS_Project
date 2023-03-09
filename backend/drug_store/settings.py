@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import sys, os
 from datetime import timedelta
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +25,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -192,21 +193,26 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,  # for TokenObtainBairView
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-    # create new refresh and access token with RefrshTokenview and blacklist the old
-    # "ROTATE_REFRESH_TOKENS": True,
-    # "BLACKLIST_AFTER_ROTATION": True,
 }
 
+# redis configurations
+REDIS_URL = config("REDIS_URL")
+
+# redis configurations
+REDIS_URL = config("REDIS_URL")
+
 # celery settings
-CELERY_BROKER_URL = "redis://"
-CELERY_RESULT_BACKEND = "redis://"  # for caching
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL  # for caching
 CELERY_TIMEZONE = "Asia/Gaza"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 # redis (remote dictionary server) for caching
-CHACHE = {
+CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://",
+        "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "MAX_ENTRIES": 2000,
@@ -217,13 +223,14 @@ CHACHE = {
 # to make redis does not interfere with django admin panel and current session
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+CELERY_CACHE_BACKEND = "default"
 
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],
+            "hosts": [config("REDIS_URL")],
             "symmetric_encryption_keys": [SECRET_KEY],
         },
     }
@@ -269,8 +276,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_ID")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PW")
+EMAIL_HOST_USER = config("EMAIL_ID")
+EMAIL_HOST_PASSWORD = config("EMAIL_PW")
 
 # the alias email instead of my emial
 DEFAULT_FROM_EMAIL = "noreply<no_reply@domain.com>"

@@ -23,11 +23,10 @@ def mark_as_read(notif_id):
 
 
 @shared_task(name="create_notifications")
-def create_notification(sender_id, options: dict = None):
-    admin = User.objects.get(is_super_user=1)
+def create_notification(sender_id, receiver_id, options: dict = None):
     data = {
         "sender": User.objects.get(id=sender_id),
-        "receiver": User.objects.get(id=admin.id),
+        "receiver": User.objects.get(id=receiver_id),
         "data": options,
     }
     Notification.objects.create(**data)
@@ -37,7 +36,6 @@ def create_notification(sender_id, options: dict = None):
 @shared_task(name="send_notifications")
 def send_client_notification(notif_id):
     notif = Notification.objects.get(id=notif_id)
-
     payload = {
         "type": "send.notification",
         "notification_id": str(notif.id),
@@ -47,6 +45,13 @@ def send_client_notification(notif_id):
     }
     async_to_sync(channel_layer.group_send)(notif.receiver.username, payload)
     return "notification sent successfully"
+
+
+@shared_task(name="load_notifications")
+def load_related_notifications(username):
+    notifs = Notification.objects.filter(receiver__username=username)
+    for notif in notifs:
+        send_client_notification.delay(notif_id=notif.id)
 
 
 @shared_task(name="delete_instance_notification")

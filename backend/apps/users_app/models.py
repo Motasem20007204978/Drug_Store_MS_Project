@@ -1,14 +1,15 @@
-from django.db import models
-from uuid import uuid4
-from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.utils.encoding import smart_bytes
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.deconstruct import deconstructible
-from django.contrib.auth.models import update_last_login
 import os
+from uuid import uuid4
+
+from django.contrib.auth.models import AbstractUser, update_last_login
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+from django.db import models
+from django.shortcuts import get_object_or_404
+from django.utils.deconstruct import deconstructible
+from django.utils.encoding import smart_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 # Create your models here.
 
@@ -25,8 +26,21 @@ class PathAndRename(object):
         return os.path.join(self.path, filename)
 
 
+class NameValidator(RegexValidator):
+    regex = r"^\w+$"
+    message = (
+        "enter name begins with capital letter and A-Z, a-z or _"
+        " between 5 and 50 characters"
+    )
+    flags = 0
+
+
+name_validator = NameValidator()
+
+
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid4)
+    username = models.CharField(max_length=50, unique=True, validators=[name_validator])
     email = models.EmailField("email address", unique=True)
     location = models.CharField(max_length=50)
     profile_pic = models.ImageField(
@@ -68,7 +82,7 @@ class User(AbstractUser):
             raise ValidationError("token is invalid or expired")
 
     def update_login(self):
-        update_last_login(None, user=self)
+        update_last_login(User, user=self)
 
     class Meta:
         db_table = "users_db"

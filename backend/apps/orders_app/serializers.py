@@ -28,7 +28,7 @@ class OrderSerializer(QueryFieldsMixin, WritableNestedModelSerializer):
             "description",
             "ordered_drugs",
             "total_price",
-            "created_at",
-            "updated_at",
+            "created",
+            "modified",
         )
-        read_only_fields = ("status", "created_at", "updated_at", "total_price")
+        read_only_fields = ("status", "created", "modified", "total_price")

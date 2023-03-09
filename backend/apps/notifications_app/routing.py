@@ -2,9 +2,9 @@ from django.urls import path
 from .consumers import NotificationConsumer
 
 
-websocket_urlpatterns = [
+notifs_urlpatterns = [
     path(
-        "api/notifs/ws",
+        "api/notifs/me",
         NotificationConsumer.as_asgi(),
         name="websocket-notif",
     )

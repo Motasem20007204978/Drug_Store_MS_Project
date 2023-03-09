@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/auth/", include("auth_app.urls")),
     path("api/drugs/", include("drugs_app.urls")),
     path("api/orders/", include("orders_app.urls")),
+    path("api/notifications/", include("notifications_app.urls")),
     path("api-auth/", include("rest_framework.urls")),
     path("api/prometheus/", include("django_prometheus.urls")),
 ]

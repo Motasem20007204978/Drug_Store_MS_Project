@@ -5,6 +5,7 @@ from rest_framework.mixins import (
     UpdateModelMixin,
     CreateModelMixin,
     RetrieveModelMixin,
+    DestroyModelMixin,
 )
 from .models import Order, User
 from rest_framework.response import Response
@@ -22,8 +23,8 @@ class AbstractView(GenericAPIView):
 
 class ListCreateOrder(AbstractView, ListModelMixin, CreateModelMixin):
     def get_pharmacy(self):
-        code = self.request.resolver_match.kwargs.get("username")
-        pharmacy = get_object_or_404(User, code=code)
+        username = self.request.resolver_match.kwargs.get("username")
+        pharmacy = get_object_or_404(User, username=username)
         return pharmacy
 
     def filter_queryset(self, queryset):
@@ -40,9 +41,7 @@ class ListCreateOrder(AbstractView, ListModelMixin, CreateModelMixin):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if request.user != self.get_pharmacy():
-            return self.permission_denied()
-        if request.user.is_staff:
+        if request.user != self.get_pharmacy() or request.user.is_staff:
             return self.permission_denied()
         return self.create(request, *args, **kwargs)
 
@@ -70,7 +69,7 @@ class ExtractOrders(ListOrders):
 
     def list(self, request, *args, **kwargs):
         if not request.user.is_staff:
-            return Response({"message": "only admin can extract data"})
+            return self.permission_denied()
 
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="export.csv"'
@@ -88,11 +87,12 @@ class ExtractOrders(ListOrders):
         return response
 
 
-class ModifyOrder(AbstractView, RetrieveModelMixin, UpdateModelMixin):
+class ModifyOrder(
+    AbstractView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+):
     def get_pharmacy(self):
-        code = self.request.resolver_match.kwargs.get("code")
-        pharmacy = get_object_or_404(User, code=code)
-        print(pharmacy)
+        username = self.request.resolver_match.kwargs.get("username")
+        pharmacy = get_object_or_404(User, username=username)
         return pharmacy
 
     def get_object(self):
@@ -101,37 +101,36 @@ class ModifyOrder(AbstractView, RetrieveModelMixin, UpdateModelMixin):
         return order
 
     def get(self, request, *args, **kwargs):
-        print(request.user, "user")
         if self.get_pharmacy() != request.user or not request.user.is_staff:
-            return Response({"message": "cannot get another pharmacy orders"})
+            return self.permission_denied()
         return self.retrieve(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        if self.get_pharmacy() != request.user:
-            return Response({"message": "cannot update another pharmacy orders"})
-        if self.get_object().status != "PE":
-            return Response({"message": "can update when order is pinned"})
+        if (
+            self.get_pharmacy() != request.user
+            or self.get_object().status == "Completed"
+        ):
+            return self.permission_denied()
         return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        if (
+            self.get_pharmacy() != request.user
+            or self.get_object().status != "Completed"
+        ):
+            return self.permission_denied()
+        return self.destroy(request, *args, **kwargs)
 
 
 class StatusOrderView(AbstractView, APIView):
     def patch(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
         status = request.data.get("status", "")
-        if not status:
-            return Response({"message": "must put status in filed"})
-        if order.status != "PE":
-            return Response({"message": "cannot change if status is not pinned"})
-        if status not in ["CO", "CA"]:
-            return Response(
-                {
-                    "message": 'change status can only be with "CO" characters to be completed or "CA" characters to be cancelled'
-                }
-            )
-        if not request.user.is_staff and status == "CO":
-            return Response({"message": "only staff can meke order complete"})
-
-        order.status = status
-        print(order.id)
-        order.save()
+        if (
+            status != "Completed"
+            or not request.user.is_staff
+            or order.status == "Completed"
+        ):
+            return self.permission_denied()
+        order.set_status("Completed")
         return Response("the state is changed successfully")

@@ -1,4 +1,5 @@
 from django.db import models
+from django_extensions.db.models import TimeStampedModel
 
 # Create your models here.
 
@@ -18,14 +19,6 @@ class Manager(models.Manager):
         return QuerySet(model=self.model, using=self._db)
 
 
-class TimeStampedModel(models.Model):
-    created_at = models.DateTimeField("creation date", auto_now_add=True)
-    updated_at = models.DateTimeField("updating date", auto_now=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-
 class Drug(TimeStampedModel):
     name = models.CharField(max_length=50, unique=True)
     quantity = models.PositiveIntegerField()
@@ -39,4 +32,5 @@ class Drug(TimeStampedModel):
         self.save()
 
     class Meta:
+        ordering = ["-created"]
         db_table = "drugs_db"
