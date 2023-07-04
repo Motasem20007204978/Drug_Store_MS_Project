@@ -1,0 +1,31 @@
+{% extends "base/base.html" %} {% load static %} {% block content %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+/>
+<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6 pt-5 pb-5">{% block auth %} {% endblock %}</div>
+    <div class="col-md-6 right-side p-0">
+      <div class="background-layer row m-0">
+        <div class="col-md-6 m-auto">
+          <img
+            class="mx-auto d-block"
+            src="{% static '/assets/icons/logo-removebg-p.svg' %}"
+            style="width: 100px; margin-left: auto"
+            alt="Logo"
+          />
+          <h3 class="text-center pt-3 pb-2">Gaza Central Company</h3>
+          <p class="text-center">
+            Lorem Ipsum is simply dummy text of the printing and typesetting
+            industry. Lorem Ipsum has been the industry's standard dummy text
+            ever since the 15 ummy text ever since the
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

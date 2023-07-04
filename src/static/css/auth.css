@@ -1,0 +1,27 @@
+.right-side {
+  background: url("../assets/images/ruchindra-gunas.png") center no-repeat;
+  background-size: cover;
+}
+
+.background-layer {
+  background-color: rgba(0, 147, 221, 0.7);
+  width: 100%;
+  height: 100%;
+  color: white;
+}
+
+a {
+  text-decoration: none;
+  font-weight: bold;
+  color: red;
+}
+
+label {
+  color: #B1B1B1;
+}
+
+input[type="email"],
+input[type="checkbox"],
+input[type="Password"] {
+  background-color: #F9F9F9;
+}

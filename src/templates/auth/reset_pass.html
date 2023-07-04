@@ -1,0 +1,31 @@
+{% extends "auth/basic_auth.html" %} {% load static %} {% block auth %}
+<div class="row m-auto pt-5" style="width: 80%">
+  <h1>Get Strated <span style="color: #a7cc3a">&rarr;</span></h1>
+  <p style="color: #707070">verify email</p>
+  <form class="pt-2">
+    <div class="form-floating mb-3">
+      <input
+        type="email"
+        placeholder="Email"
+        class="form-control"
+        id="exampleInputEmail1"
+        aria-describedby="emailHelp"
+      />
+      <label for="exampleInputEmail1"
+        ><img
+          src="{% static '/assets/icons/pharmacy-icon.svg' %}"
+          alt="pharmacy-icon"
+        />
+        &nbsp;Email</label
+      >
+    </div>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      style="width: 100%; background-color: #0093dd; border-radius: 25px"
+    >
+      VERIFY &nbsp; >>
+    </button>
+  </form>
+</div>
+{% endblock %}

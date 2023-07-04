@@ -1,0 +1,125 @@
+body {
+    background-color: #F9F9F9;
+
+}
+
+#order {
+    padding: 12px 25px;
+    background-color: #A7CC3A;
+    color: white;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 15px;
+    border: none;
+    margin-left: 20px;
+    width: 100px;
+    cursor: pointer;
+}
+
+.labels {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.taable {
+    padding-left: 100px;
+    margin-bottom: 50px;
+    margin-top: 100px;
+}
+
+.taable #add {
+    background-color: #0093DD;
+    color: white;
+    margin-left: 5px;
+}
+
+.taable .form input {
+    margin-left: 5px;
+    height: 35px;
+}
+
+.labels #quantity {
+    margin-left: 420px;
+}
+
+.taable .form select {
+    height: 39px;
+    width: 500px;
+}
+
+.form #add {
+    height: 35px;
+}
+
+.form {
+    margin-bottom: 10px;
+}
+
+.labels label {
+    color: #707070;
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+table {
+    width: 95%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: small;
+}
+
+th,
+td {
+    padding: 10px;
+    width: 95px;
+    ;
+}
+
+th {
+    background-color: #D4EDF9;
+    font-weight: bold;
+}
+
+td {
+    background-color: white;
+    vertical-align: middle;
+
+}
+
+.taable #Update {
+    color: white;
+    background-color: #168305;
+    border-radius: 0px;
+    width: 100px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+td[colspan="8"] {
+    background-color: #E3E3E3;
+    color: #707070;
+    font-weight: bold;
+    text-align: right;
+    padding: 4px;
+    padding-right: 30px;
+}
+
+tr:first-child {
+    border-bottom: 1px solid #E3E3E3;
+}
+
+.taable table label {
+    color: #168305;
+}
+
+#Save {
+    color: white;
+    background-color: #168305;
+    border-radius: 0px;
+    width: 120px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    margin-top: 10px;
+}

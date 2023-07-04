@@ -128,12 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# media and static sub folders
+# media and static sub folders and files
 */media/**
-*/static/**
-
-!*/static/.gitkeep
-!*/media/.gitkeep
+!*/media/default-image.jpg
+*/static/*.json
+*/static/*.csv
 
 **/migrations/**
 !**/migrations/__init__.py

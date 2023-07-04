@@ -4,15 +4,15 @@ services:
 
   web: # any name
     build: 
-      context: backend
+      context: src
       dockerfile: dockerfile
-    container_name: backend
+    container_name: web
     command: >
      sh -c "python manage.py makemigrations &&
             python manage.py migrate &&
             gunicorn -k uvicorn.workers.UvicornWorker drug_store.asgi:application --bind 0.0.0.0:5000"
     volumes:
-      - ./backend:/webproject/ #get the real-time updates that we makes it to the project into the image
+      - ./src:/webproject/ #get the real-time updates that we makes it to the project into the image
       - static_volume:/webproject/static
       - media_volume:/webproject/media
     ports:
@@ -39,8 +39,7 @@ services:
     restart: always # restart container automatically if it is stopped manually or fails
     command: celery -A drug_store worker -l INFO # get information in terminal
     depends_on:
-      - database
-      - redis
+      - web
     env_file:
       - ./.env
     network_mode: host
@@ -53,7 +52,7 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - celery
+      - web
     network_mode: host
 
   flower:

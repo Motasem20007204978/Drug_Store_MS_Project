@@ -1,0 +1,13 @@
+**/__pycache__
+*.sqlite3
+
+media/**
+static/*.csv
+static/*.json
+!media/default-image.jpg
+
+**/migrations/**
+!**/migrations/__init__.py 
+
+
+celerybeat-schedule

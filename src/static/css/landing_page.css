@@ -1,0 +1,14 @@
+.leftquotes {
+  display: inline;
+  height: fit-content;
+}
+
+.leftquotes p {
+  margin-left: 50px;
+}
+
+.rightquotes {
+  display: inline;
+  float: right;
+  height: fit-content;
+}

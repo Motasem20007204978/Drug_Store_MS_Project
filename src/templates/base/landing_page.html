@@ -1,0 +1,379 @@
+{% extends "base/base.html" %} {% load static %} {% block content %}
+<nav
+  class="navbar navbar-expand-lg navbar-light"
+  style="position: absolute; width: 100%"
+  data-bs-theme="dark"
+>
+  <div class="container">
+    <div class="navbar-head">
+      <a class="navbar-brand" href="#"
+        ><img src='{% static "assets/icons/logo-removebg-p.svg" %}' alt="Logo"
+      /></a>
+    </div>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto my-2 my-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" style="color: wihte" href="#home">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#about">About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#founder">Founder</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#team">Our Team</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#mission">Mission & Vision</a>
+        </li>
+      </ul>
+      <div class="btn-group" role="group" aria-label="Button group">
+        <a
+          href="{% url 'auth:login'%}"
+          type="button"
+          class="btn btn-primary me-3"
+          >Sign in</a
+        >
+        <button type="button" class="btn btn-warning">Order</button>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="container-fluid bg-primary" id="home">
+  <div class="row p-0">
+    <div class="col-md-8 d-flex align-items-center">
+      <div class="col-md-8 container">
+        <h2 class="">Gaza Central Company</h2>
+        <p class="">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sit
+          amet elit ullamcorper, convallis tellus at, fermentum mauris. Aliquam
+          ut rhoncus velit.
+        </p>
+        <hr class="invisible h-70" />
+        <p>let's create your first order</p>
+        <button type="button" class="btn btn-warning">Order now</button>
+        <hr class="invisible h-70" />
+      </div>
+    </div>
+    <div class="col-md-4 m-0">
+      <img
+        src='{% static "assets/images/ruchindra-gunas.png" %}'
+        class="img-fluid"
+        alt="Responsive image"
+      />
+    </div>
+  </div>
+</div>
+<div class="container pt-5" id="about">
+  <div class="row justify-content-center">
+    <div class="col-sm-10">
+      <h1 class="text-center">About Gaza Central Company</h1>
+      <p class="text-center">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sit
+        amet elit ullamcorper, convallis tellus at, fermentum mauris. Aliquam ut
+        rhoncus velit.
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <img
+        src='{% static "assets/images/national-cancer(1).png" %}'
+        class="img-fluid"
+        alt="Responsive image"
+      />
+    </div>
+    <div class="col-md-6">
+      <div class="quotes">
+        <p class="leftquotes">
+          <img src='{% static "assets/icons/quotes.svg" %}' alt="" />
+        </p>
+        <p>
+          Gaza Central Warehouse Company for Drugs and Medical Supplies was
+          established in 2003. and It Is an extension of the Gaza Central
+          Drugstore. which was established by the late pharmacist Hassan Youssef
+          Shurrab In the year 1983 AD in Gaza City as the first drug
+          distribution warehouse in the Gaza Strip. and since then we have been
+          working to meet the needs of thr pharmaceutical market in the Gaza
+          Strip. Gaza through the distribution and marketing of the best and
+          finest medicines. whether iocal or foreign. with high professionalism,
+          and the company plays a major role In the Palestinian pharmaceutical
+          marimbas the company provides many vital and necessary medicines to
+          the residents of the Strip. through the companys association with
+          distinguished commercial relations with many foreign pharmaceutical
+          companies and factories including Arabic.
+        </p>
+        <p>
+          With our professional and credible work we are considered one of the
+          largest drug distribution companies in Palestine. as we work to cover
+          the pharmaceutical market in the Gaza Strip completely through dealing
+          and accessing more than 500 dru selling points from pharmacies.
+          private and public hospitals. heath centers and institutions spread
+          throughout the Stith Gaza, in addition tome Palestinian Ministry of
+          Health and many International Institutions operating In Palestine By
+          adopting the forward Integration strategy. two pharmacies affiliated
+          to the company were established to serve as sales centers for
+          medicines and products marketed by the company, in addition to some
+          complementary and supportive products.
+        </p>
+        <p class="rightquotes">
+          <img src='{% static "assets/icons/quotes.svg" %}' alt="" />
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="pt-5 pb-5"
+  style="background-color: rgba(0, 0, 255, 0.2)"
+  id="founder"
+>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-sm-10">
+        <h1 class="text-center">Founder & Board of Directors</h1>
+        <p class="text-center">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sit
+          amet elit ullamcorper, convallis tellus at, fermentum mauris. Aliquam
+          ut rhoncus velit.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-5">
+        He was born in the year 1944 AD and is considered one of the first
+        pharmacists in the Gaza Strip. He obtained a master’s degree in
+        pharmaceutical sciences from the University of Vienna, Austria in the
+        year 1969 AD. Although he was born into a family that owns many major
+        commercial, agricultural and industrial companies that existed after
+        graduating from university, upon his return to the homeland from
+        Austria, he went to work in the service of his people in the field of
+        his professional specialization as a pharmacist in hospitals in the Gaza
+        Strip to perform his professional mission. And through his work as a
+        pharmacist in the hospitals of the sector and his knowledge of the
+        suffering of patients in obtaining the necessary and necessary medicines
+        for them, he decided in the year 1983 AD to move from working in the
+        public sector
+      </div>
+      <div class="col-md-2 pb-3">
+        <figure>
+          <img
+            src='{% static "assets/images/founder.png" %}'
+            class="img-fluid"
+            alt="Image"
+          />
+          <figcaption class="text-center">Founder: Hassan Shurrab</figcaption>
+        </figure>
+      </div>
+      <div class="col-md-5">
+        to establish the first drug warehouse as a private company to work to
+        provide patients’ needs of modern and developed medicines on the one
+        hand and contribute to maintaining Pharmaceutical security for the Gaza
+        Strip, on the other hand, in continuation to its professional mission,
+        which is still working on behalf of the Gaza Central Warehouse Company
+        for Drugs and Medical Appliances, and established the Middle East
+        Factory for Pharmaceutical Industries and Cosmetics with a group of
+        colleagues in the year 1994 AD,He also participated and contributed in
+        many volunteer and service activities, and contributed to the
+        establishment of many health centers and clinics spread throughout the
+        Gaza Strip, and held many administrative positions for many professional
+        institutions and charitable, economic and financial organizations during
+        his life.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container pt-5" id="team">
+  <div class="card mb-3">
+    <div class="row no-gutters">
+      <div class="col-2">
+        <img
+          src='{% static "assets/images/char-01.png" %}'
+          class="card-img img-fluid"
+          alt="..."
+        />
+      </div>
+      <div class="col-10">
+        <div class="card-body">
+          <h5 class="card-title">
+            Chairman of the Board Haifa Abdel Ismail Sharab
+          </h5>
+          <p class="card-text">
+            She was born in the year 1948 AD and is one of the women who reached
+            trade and commerce in the Gaza Strip and occupied several
+            administrative positions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-3">
+    <div class="row no-gutters">
+      <div class="col-2">
+        <img
+          src='{% static "assets/images/images (1).png" %}'
+          class="card-img img-fluid"
+          alt="..."
+        />
+      </div>
+      <div class="col-10">
+        <div class="card-body">
+          <h5 class="card-title">
+            Vice Chairman of the Board of Directors Nader Hassan Youssef Sharab
+          </h5>
+          <p class="card-text">
+            Born in 1968, he studied chemical engineering in Vienna and holds
+            Austrian citizenship in addition to Palestinian citizenship. He is
+            fluent in English and German in addition to Arabic.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-3">
+    <div class="row no-gutters">
+      <div class="col-2">
+        <img
+          src='{% static "assets/images/alexander-hipp-.png" %}'
+          class="card-img img-fluid"
+          alt="..."
+        />
+      </div>
+      <div class="col-10">
+        <div class="card-body">
+          <h5 class="card-title">
+            Member of the Board of Directors Haitham Hassan Youssef Shurrab
+          </h5>
+          <p class="card-text">
+            He was born in 1970. He holds a diploma in programming and public
+            relations from Austria. He holds Austrian citizenship in addition to
+            Palestinian citizenship. He is fluent in English and German in
+            addition to Arabic.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-3">
+    <div class="row no-gutters">
+      <div class="col-2">
+        <img
+          src='{% static "assets/images/images.png" %}'
+          class="card-img img-fluid"
+          alt="..."
+        />
+      </div>
+      <div class="col-10">
+        <div class="card-body">
+          <h5 class="card-title">
+            Member of the Board of Directors Saed Hassan Youssef Sharab
+          </h5>
+          <p class="card-text">
+            He was born in the year 1976. He holds an MBA from Al-Azhar
+            University in Gaza. He participated in many social activities in the
+            Gaza Strip. He has a network of relations with academics,
+            intellectuals and many Palestinian merchants in various fields.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="background-color: rgba(0, 0, 255, 0.2)" id="mission">
+  <div class="container pt-5">
+    <div class="row justify-content-center">
+      <div class="col-sm-10">
+        <h1 class="text-center">Our Mission & Vision</h1>
+        <p class="text-center">Quality , Integrity, Experience</p>
+      </div>
+    </div>
+    <div class="row justify-content-center pb-3 pt-3">
+      <div class="col-sm-10">
+        <p class="text-center">
+          We are looking forward as the first warehouse established in the Gaza
+          Strip for more than a quarter of a century ago to improve the public
+          health of the Palestinian citizen and to be at the forefront of
+          pharmaceutical distribution companies in Palestine by providing all
+          the needs of the Palestinian market of modern and high-quality
+          medicines and medical supplies,Continuing to invest and build
+          partnership relations and trade exchange with pharmaceutical companies
+          and their agents on the one hand, and all public and private health
+          institutions and centers spread in Palestine on the other hand, with
+          the highest levels of efficiency and professionalism.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4 mb-5">
+            <div class="card align-items-center" style="height: 300px">
+              <img
+                class="card-img-top-center p-2 rounded-circle"
+                style="width: auto; height: 70px"
+                src='{% static "/assets/images/quality.png" %}'
+                alt="Card image"
+              />
+              <div class="card-body">
+                <h4 class="card-title text-center">Quality</h4>
+                <p class="card-text text-center">
+                  Marketing registered and licensed medicines for circulation
+                  with the competent authorities, and of high quality with the
+                  highest levels of professionalism.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <div class="card align-items-center" style="height: 300px">
+              <img
+                class="card-img-top-center p-2 rounded-circle"
+                style="width: auto; height: 70px"
+                src='{% static "/assets/images/integrity.png" %}'
+                alt="Card image"
+              />
+              <div class="card-body">
+                <h4 class="card-title text-center">Integrity</h4>
+                <p class="card-text text-center">
+                  And providing them to all parts of the Gaza Strip in a manner
+                  commensurate with all segments of society
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-5">
+            <div class="card align-items-center" style="height: 300px">
+              <img
+                class="card-img-top-center p-2 rounded-circle"
+                style="width: auto; height: 70px"
+                src='{% static "/assets/images/experience.png" %}'
+                alt="Card image"
+              />
+              <div class="card-body">
+                <h4 class="card-title text-center">Experience</h4>
+                <p class="card-text text-center">
+                  And ensuring that it reaches patients who need it at the right
+                  time, place and price.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'base/base.html' %} {% load static %} {% block content %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+  crossorigin="anonymous"
+/>
+<link rel="stylesheet" href="{% static '/css/archived_orders.css' %}" />
+{% include 'base/navbar.html' %}
+<div class="account">
+  <div class="circle">
+    <img
+      src="../assets/icons/pharmacy-b.svg"
+      alt="pharmacy-b"
+      id="pharmacy-b"
+    />
+  </div>
+  <ul>
+    <a
+      href="file:///C:/Users/astal/Desktop/drug_store_project/html/Account%20Information.html#home"
+      ><li>Account Information</li></a
+    >
+    <a
+      href="file:///C:/Users/astal/Desktop/drug_store_project/html/Current%20Orders.html#"
+      ><li>Current Orders</li></a
+    >
+    <a
+      href="file:///C:/Users/astal/Desktop/drug_store_project/html/Archived%20Orders.html"
+      ><li
+        style="
+          background-color: #d2ecf9;
+          border-left: 10px solid #0093dd;
+          font-weight: bold;
+        "
+      >
+        Archived Orders
+      </li></a
+    >
+  </ul>
+</div>
+<div class="co">
+  <img src="../assets/icons/home-icon.svg" alt="home" id="home" />
+  <p>/Pharmacy Profile</p>
+  <h5>/ Archived Orders</h5>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Drug ID</th>
+        <th>Drug Name</th>
+        <th>Quantity</th>
+        <th>Expiry Date</th>
+        <th>Drug Status</th>
+        <th>Price Per Unit (NIS)</th>
+        <th>Total Price (NIS)</th>
+        <th>Order Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="8">
+          <label class="ordr">Order 1</label>
+          Total Price
+          <label>400 NIS</label>
+        </td>
+      </tr>
+      <tr>
+        <td>1002</td>
+        <td>ABECEDIN 1x30 TABLETS</td>
+        <td>100</td>
+        <td>22,Mar,2022</td>
+        <td>
+          <input type="checkbox" id="checkbox" name="checkbox" checked />
+          <label for="checkbox">Available</label>
+        </td>
+        <td>10</td>
+        <td>1000</td>
+        <td>Completed</td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td>1002</td>
+        <td>ABECEDIN 1x30 TABLETS</td>
+        <td>100</td>
+        <td>22,Mar,2022</td>
+        <td>
+          <input type="checkbox" id="checkbox" name="checkbox" checked />
+          <label for="checkbox">Available</label>
+        </td>
+        <td>10</td>
+        <td>1000</td>
+        <td>Completed</td>
+      </tr>
+      <tr></tr>
+
+      <tr></tr>
+      <tr>
+        <td colspan="8">
+          <label class="ordr">Order 2</label>
+          Total Price
+          <label>400 NIS</label>
+        </td>
+      </tr>
+      <tr>
+        <td>1002</td>
+        <td>ABECEDIN 1x30 TABLETS</td>
+        <td>100</td>
+        <td>22,Mar,2022</td>
+        <td>
+          <input type="checkbox" id="checkbox" name="checkbox" checked />
+          <label for="checkbox">Available</label>
+        </td>
+        <td>10</td>
+        <td>1000</td>
+        <td>Completed</td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td>1002</td>
+        <td>ABECEDIN 1x30 TABLETS</td>
+        <td>100</td>
+        <td>22,Mar,2022</td>
+        <td>
+          <input type="checkbox" id="checkbox" name="checkbox" checked />
+          <label for="checkbox">Available</label>
+        </td>
+        <td>10</td>
+        <td>1000</td>
+        <td>Completed</td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td>1002</td>
+        <td>ABECEDIN 1x30 TABLETS</td>
+        <td>100</td>
+        <td>22,Mar,2022</td>
+        <td>
+          <input type="checkbox" id="checkbox" name="checkbox" checked />
+          <label for="checkbox">Available</label>
+        </td>
+        <td>10</td>
+        <td>1000</td>
+        <td>Completed</td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td>1002</td>
+        <td>ABECEDIN 1x30 TABLETS</td>
+        <td>100</td>
+        <td>22,Mar,2022</td>
+        <td>
+          <input type="checkbox" id="checkbox" name="checkbox" checked />
+          <label for="checkbox">Available</label>
+        </td>
+        <td>10</td>
+        <td>1000</td>
+        <td>Completed</td>
+      </tr>
+      <tr></tr>
+    </tbody>
+  </table>
+
+  <div class="navigation">
+    <a href="#" class="prev">&larr; Prev</a>
+    <a href="#" class="next">Next &rarr;</a>
+  </div>
+</div>
+{% endblock%}

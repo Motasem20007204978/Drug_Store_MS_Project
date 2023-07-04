@@ -1,0 +1,60 @@
+{% extends "auth/basic_auth.html" %} {% load static %} {% block auth %}
+<div class="row m-auto pt-5" style="width: 80%">
+  <h1>Get Strated <span style="color: #a7cc3a">&rarr;</span></h1>
+  <p style="color: #707070">login using email</p>
+  <form class="pt-2">
+    <div class="form-floating mb-3">
+      <input
+        type="email"
+        placeholder="Email"
+        class="form-control"
+        id="exampleInputEmail1"
+        aria-describedby="emailHelp"
+      />
+      <label for="exampleInputEmail1"
+        ><img
+          src="{% static '/assets/icons/pharmacy-icon.svg' %}"
+          alt="pharmacy-icon"
+        />
+        &nbsp;Email</label
+      >
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        type="password"
+        placeholder="Password"
+        class="form-control"
+        id="exampleInputPassword1"
+      />
+      <label for="exampleInputPassword1"
+        ><img
+          src="{% static '/assets/icons/lock-icon.svg' %}"
+          alt="lock-icon"
+        />
+        &nbsp;Password</label
+      >
+    </div>
+    <div class="row mb-3 m-auto">
+      <div class="col-6 form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1" />
+        <label
+          class="form-check-label"
+          for="exampleCheck1"
+          style="color: #707070"
+          >Remember Me</label
+        >
+      </div>
+      <div class="col-6 d-flex justify-content-end">
+        <a href="{% url 'auth:reset_pass' %}">Forgot Password ?</a>
+      </div>
+    </div>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      style="width: 100%; background-color: #0093dd; border-radius: 25px"
+    >
+      LOGIN &nbsp; >>
+    </button>
+  </form>
+</div>
+{% endblock %}
