@@ -47,16 +47,17 @@ class UserView(RetrieveUpdateAPIView):
     queryset = User.objects.all()
     http_method_names = ["get", "patch"]
 
-    def get(self, request, username, *args, **kwargs):
-        user = get_object_or_404(User, username=username)
-        if request.user != user or not request.user.is_staff:
+    def get(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=kwargs.get("username"))
+        if request.user != user and not request.user.is_staff:
             return self.permission_denied(request)
         return super().get(request, *args, **kwargs)
 
-    def patch(self, request, username, *args, **kwargs):
-        user = get_object_or_404(User, username=username)
+    def patch(self, request, *args, **kwargs):
+        print(kwargs.get("username"))
+        user = get_object_or_404(User, username=kwargs.get("username"))
         if request.user != user:
-            return self.permission_denied(request)
+            self.permission_denied(request)
         return super().patch(request, *args, **kwargs)
 
 

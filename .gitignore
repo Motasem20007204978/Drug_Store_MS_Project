@@ -136,3 +136,4 @@ dmypy.json
 
 **/migrations/**
 !**/migrations/__init__.py
+note.txt

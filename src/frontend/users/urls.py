@@ -9,6 +9,6 @@ urlpatterns = [
     path("orders/current", views.current_orders, name="current-orders"),
     path("orders/archived", views.archived_orders, name="arch-orders"),
     path("orders/create", views.create_order, name="create-order"),
-    path("users/add", views.add_users, name="add-users"),
-    path("drugs/add", views.add_drugs, name='add-drugs'),
+    path("users", views.add_users, name="users-page"),
+    path("drugs", views.add_drugs, name="drugs-page"),
 ]

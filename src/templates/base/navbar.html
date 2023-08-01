@@ -8,12 +8,63 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
 />
+
+<py-script>
+  import js, json 
+  auth_data = js.localStorage.getItem("auth_data") 
+  if auth_data is None:
+    js.window.location.replace(f"http://localhost:8000/auth/login") 
+  auth_data = json.loads(auth_data) 
+  js.document.getElementById("profilepicture").src = auth_data["profile_pic"] 
+  if auth_data["is_staff"]:
+    js.document.getElementsByName("forpharmacy")[0].style.display = "none" 
+  else:
+    js.document.getElementsByName("foradmin")[0].style.display = "none"
+    js.document.getElementsByName("foradmin")[1].style.display = "none"
+</py-script>
+
+<py-script src="{% static 'ps/auth.py' %}"> </py-script>
+
+<script>
+
+  function count_notifications(){
+    notifs_count = document.getElementById("notifications").children.length
+    document.getElementById("notifications_count").innerHTML = notifs_count - 1
+  }
+
+  // Create WebSocket connection.
+  auth_data = JSON.parse(localStorage.getItem("auth_data"));
+  const socket = new WebSocket(
+    `ws://localhost:8000/api/notifs/me?token=${auth_data["token"]}`
+  );
+
+  // Connection opened
+  socket.addEventListener("open", function (event) {
+    socket.send(JSON.stringify({"message": "Hello Server!"}));
+    count_notifications()
+  });
+
+  // Listen for messages
+  socket.addEventListener("message", function (event) {
+    console.log("Message from server ", JSON.parse(event.data));
+    message = JSON.parse(event.data).data.message
+    notifs = document.getElementById("notifications")
+    notifs.innerHTML += `
+      <li class="dropdown-item">
+        ${message}
+      </li>
+    `
+    count_notifications()
+  });
+  
+</script>
+
 <nav class="navbar navbar-expand-lg fixed-top bg-primary navbar-light">
   <div class="container">
     <a class="navbar-brand" href="#">
       <img
         id="logo"
-        src="{% static '/assets/icons/logo-removebg-p.svg' %}"
+        src="{% static 'assets/icons/logo-removebg-p.svg' %}"
         alt="MDB Logo"
         draggable="false"
         height="30"
@@ -37,14 +88,24 @@
           <a class="nav-link" style="color: wihte" href="#home">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'user:current-orders' %}">Current Orders</a>
+          <a class="nav-link" href="{% url 'user:current-orders' %}"
+            >Current Orders</a
+          >
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'user:arch-orders' %}">Archived Orders</a>
+          <a class="nav-link" href="{% url 'user:arch-orders' %}"
+            >Archived Orders</a
+          >
+        </li>
+        <li class="nav-item" name="foradmin">
+          <a class="nav-link" href="{% url 'user:users-page' %}">Users</a>
+        </li>
+        <li class="nav-item" name="foradmin">
+          <a class="nav-link" href="{% url 'user:drugs-page' %}">Drugs</a>
         </li>
       </ul>
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item">
+        <li class="nav-item" name="forpharmacy">
           <a class="nav-link mx-2" href="{% url 'user:create-order' %}"
             ><i class="fas fa-plus-circle pe-2"></i>Order</a
           >
@@ -61,6 +122,8 @@
             <div>
               <i class="fas fa-bell"></i>
               <span class="badge rounded-pill badge-notification bg-primary"
+                    id="notifications_count"
+                    style="color: red;"
                 >11</span
               >
             </div>
@@ -69,23 +132,9 @@
           <ul
             class="dropdown-menu dropdown-menu-end"
             aria-labelledby="navbarDropdownMenuLink"
+            id="notifications"
           >
             <li><h6 class="dropdown-header">Notifications</h6></li>
-            <li>
-              <a class="dropdown-item" href="#"
-                >You have a new friend request</a
-              >
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">You have a new message</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Someone liked your post</a>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <a class="dropdown-item" href="#">View all notifications</a>
-            </li>
           </ul>
         </li>
         <li class="nav-item ms-3 dropdown">
@@ -100,6 +149,7 @@
             <img
               src="https://bootdey.com/img/Content/avatar/avatar7.png"
               alt="Profile"
+              id="profilepicture"
               height="30"
             />
           </a>
@@ -107,9 +157,13 @@
             class="dropdown-menu dropdown-menu-end"
             aria-labelledby="navbarDropdownMenuLink"
           >
-            <li><a class="dropdown-item" href="{% url 'user:profile' %}">Profile</a></li>
+            <li>
+              <a class="dropdown-item" href="{% url 'user:profile' %}"
+                >Profile</a
+              >
+            </li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#">Logout</a></li>
+            <li><a class="dropdown-item" py-click="logout()">Logout</a></li>
           </ul>
         </li>
       </ul>

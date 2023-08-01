@@ -178,3 +178,30 @@ a {
     margin-top: -115px;
     width: 40px;
 }
+
+.delete-button {
+    padding: 8px 16px;
+    background-color: #ff0000; /* Set your desired background color */
+    color: #ffffff; /* Set your desired text color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .delete-button i {
+    margin-right: 4px;
+  }
+
+  .edit-button {
+    padding: 8px 16px;
+    background-color: #007bff; /* Set your desired background color */
+    color: #ffffff; /* Set your desired text color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .edit-button i {
+    margin-right: 4px;
+  }
+  

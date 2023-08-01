@@ -1,7 +1,13 @@
 {% extends 'base/base.html' %} {% load static %} {% block content %}
 
 <link rel="stylesheet" href="{% static '/css/profile.css' %}" />
+
+<py-script src="{% static 'ps/users.py' %}"></py-script>
+
 {% include 'base/navbar.html' %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
 <div class="container-xl px-4 mt-5 pt-5">
   <div class="row">
     <div class="col-xl-4">
@@ -9,18 +15,18 @@
         <div class="card-header">Profile Picture</div>
         <div class="card-body text-center">
           <img
+            id="profile_pic"
             class="img-account-profile rounded-circle mb-2"
-            src="http://bootdey.com/img/Content/avatar/avatar1.png"
+            src="https://bootdey.com/img/Content/avatar/avatar7.png"
             alt=""
           />
 
           <div class="small font-italic text-muted mb-4">
             JPG or PNG no larger than 5 MB
           </div>
-
-          <button class="btn btn-primary" type="button">
-            Upload new image
-          </button>
+          <form action="">
+            <input type="file" id="upload" accept="image/*" class="btn btn-primary" type="button"/>
+          </form>
         </div>
       </div>
     </div>
@@ -68,31 +74,15 @@
                 />
               </div>
             </div>
-
-            <div class="row gx-3 mb-3">
-              <div class="col-md-6">
-                <label class="small mb-1" for="inputOrgName"
-                  >Organization name</label
-                >
-                <input
-                  class="form-control"
-                  id="inputOrgName"
-                  type="text"
-                  placeholder="Enter your organization name"
-                  value="Start Bootstrap"
-                />
-              </div>
-
-              <div class="col-md-6">
-                <label class="small mb-1" for="inputLocation">Location</label>
-                <input
-                  class="form-control"
-                  id="inputLocation"
-                  type="text"
-                  placeholder="Enter your location"
-                  value="San Francisco, CA"
-                />
-              </div>
+            <div class="mb-3"">
+              <label class="small mb-1" for="inputLocation">Location</label>
+              <input
+                class="form-control"
+                id="inputLocation"
+                type="text"
+                placeholder="Enter your location"
+                value="San Francisco, CA"
+              />
             </div>
 
             <div class="mb-3">
@@ -107,40 +97,84 @@
                 value="name@example.com"
               />
             </div>
-
-            <div class="row gx-3 mb-3">
-              <div class="col-md-6">
-                <label class="small mb-1" for="inputPhone">Phone number</label>
-                <input
-                  class="form-control"
-                  id="inputPhone"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  value="555-123-4567"
-                />
-              </div>
-
-              <div class="col-md-6">
-                <label class="small mb-1" for="inputBirthday">Birthday</label>
-                <input
-                  class="form-control"
-                  id="inputBirthday"
-                  type="text"
-                  name="birthday"
-                  placeholder="Enter your birthday"
-                  value="06/10/1988"
-                />
-              </div>
-            </div>
-
-            <button class="btn btn-primary" type="button">Save changes</button>
+            <button class="btn btn-primary" type="button" py-click="patch_data()">Save changes</button>
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#exampleModal">Change password</button>
           </form>
         </div>
       </div>
     </div>
   </div>
 </div>
-<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript"></script>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- <py-script src="{% static 'ps/auth.py' %}"></py-script> -->
+      <div class="modal-body" style="text-align: center;">
+        <img id="lock-icon" src="{% static 'assets/icons/lock-password_icon.svg' %}" alt="lock-password" id="lock-password">
+        <p>Update Password</p>
+        <input type="password" id="old_pass" name="password" placeholder="Old Password">
+        <input type="password" id="new_pass" name="New Password" placeholder="New Password"><br>
+        <button type="button" id="save" onclick="makePostRequest()">Save</button>
+        <button type="button" id="cancel" data-dismiss="modal" aria-label="Close">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('upload').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = function() {
+        const base64Text = reader.result;
+        console.log(base64Text); // This is the base64 encoded text.
+        pyscript.interpreter.globals.get('upload')(base64Text)
+      };
+      reader.readAsDataURL(file);
+      document.getElementById("upload").value=null;
+
+    }
+  });
+</script>
+
+<script>
+  function makePostRequest() {
+      const url = "http://localhost:8000/api/auth/password/change"
+      const requestData = {
+        "old_password": document.getElementById("old_pass").value,
+        "new_password": document.getElementById("new_pass").value,
+      };
+      auth_data = JSON.parse(localStorage["auth_data"])
+      console.log(auth_data["token"])
+      const requestOptions = {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "accept": "application/json",
+              "Authorization": `Token ${auth_data["token"]}`,
+          },
+          body: JSON.stringify(requestData)
+      };
+
+      fetch(url, requestOptions)
+          .then(response => {
+            if(!response.ok){
+              throw Error(`HTTP error! status:${response.status}`);
+            }
+              return response.json();
+          })
+          .then(data => {
+            alert("Password changed successfully")
+          })
+          .catch(error => {
+              console.error("Error:", error);
+          });
+  }
+</script>
+
+
 {% endblock %}

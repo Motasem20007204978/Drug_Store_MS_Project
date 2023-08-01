@@ -85,3 +85,51 @@ a {
 .bg-soft-primary {
     background-color: rgba(59, 118, 225, .25) !important;
 }
+
+
+#old_pass, #new_pass {
+    width: 350px;
+    height: 35px;
+    border-radius: 5px;
+    border: 1px solid #707070;
+    margin-bottom: 10px;
+}
+
+::placeholder {
+    color: #B1B1B1;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 15px;
+}
+
+#save {
+    background-color: #0093DD;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 13px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 4px;
+    cursor: pointer;
+    width: 110px;
+    margin-top: 20px;
+}
+
+#cancel {
+    color: #B1B1B1;
+    background-color: #f5eeee;
+    border: none;
+    border-radius: 5px;
+    padding: 13px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 4px;
+    cursor: pointer;
+    width: 110px;
+    margin-top: 20px;
+}

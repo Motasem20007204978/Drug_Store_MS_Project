@@ -8,10 +8,10 @@
         type="email"
         placeholder="Email"
         class="form-control"
-        id="exampleInputEmail1"
+        id="email"
         aria-describedby="emailHelp"
       />
-      <label for="exampleInputEmail1"
+      <label for="email"
         ><img
           src="{% static '/assets/icons/pharmacy-icon.svg' %}"
           alt="pharmacy-icon"
@@ -20,7 +20,8 @@
       >
     </div>
     <button
-      type="submit"
+      type="button"
+      py-click="reset()"
       class="btn btn-primary"
       style="width: 100%; background-color: #0093dd; border-radius: 25px"
     >

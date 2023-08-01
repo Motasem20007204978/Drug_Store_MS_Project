@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
@@ -6,35 +7,21 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import (
-    TokenBlacklistView,
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 from users_app.tasks import send_activation
 
+from .models import UserToken
 from .serializers import (
+    AuthSerializer,
     ChangePasswordSerializer,
     EmailSerializer,
-    LoginSerializer,
     ResetPasswordSerializer,
+    TokenSerializer,
 )
 
-
-@extend_schema_view(
-    post=extend_schema(
-        operation_id="Login",
-        tags=["auth"],
-        description="takes user credentials (email and password) and returns login data if the credentials is valid",
-    )
-)
-class LoginView(TokenObtainPairView):
-
-    permission_classes = [AllowAny]
-    serializer_class = LoginSerializer
+User = get_user_model()
 
 
 @extend_schema_view(
@@ -65,7 +52,7 @@ class ForgetPassowrd(CreateAPIView):
         super().post(request)
         data = {
             "email": request.data["email"],
-            "url_name": "reset-password",
+            "url_name": "auth:reset_pass",
         }
         send_activation.delay(data)
         return Response({"messaga": "check your email to reset password"})
@@ -131,36 +118,89 @@ class ChangePasswordView(CreateAPIView):
         )
 
 
-@extend_schema_view(post=extend_schema(operation_id="refresh", tags=["auth"]))
-class RefreshAccess(TokenRefreshView):
-    ...
+@extend_schema_view(
+    post=extend_schema(
+        operation_id="email authentication",
+        description="takes the email and password to check if it is correct,"
+        " and response user data with authentication data",
+        responses={
+            201: OpenApiResponse(
+                response=dict,
+                examples=[
+                    OpenApiExample(
+                        name="auth data",
+                        value={
+                            "token": "random string",
+                            "username": "Ahmed",
+                            "profil_pic": "example.com/media/image.jpg",
+                            "first_name": "Name",
+                            "last_name": "Last",
+                            "is_staff": True,
+                        },
+                    )
+                ],
+            ),
+        },
+    )
+)
+class AuthenticateView(CreateAPIView):
+    serializer_class = AuthSerializer
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_object(self):
+        email = self.request.data.get("email")
+        user = get_object_or_404(self.get_queryset(), email=email)
+        return user
+
+    def get_token(self, user):
+        token = UserToken.objects.get_or_create(user=user)
+        return token[0]
+
+    def post(self, request, *args, **kwargs):
+        super().post(request, *args, **kwargs)
+        user = self.get_object()
+        token = self.get_token(user)
+        return Response(data={"data": token.representation})
 
 
 @extend_schema_view(
     post=extend_schema(
         operation_id="logout",
-        tags=["auth"],
-        description="takes refresh token and blacklists it into blacklist table",
+        description="takes user authentication token and delete it"
+        " to logout the system",
         responses={
             200: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
+                response=dict,
                 examples=[
                     OpenApiExample(
-                        name="success logout",
+                        name="logout the system",
                         value={
-                            "message": "the refresh token is blacklisted and you connot use it forever"
+                            "message": "you logged out the system",
                         },
-                    )
+                    ),
                 ],
             )
         },
-    )
+    ),
 )
-class Logout(TokenBlacklistView):
-    def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
-        return Response(
-            data={
-                "message": "the refresh token is blacklisted and you connot use it forever"
-            }
+class LogoutView(CreateAPIView):
+    serializer_class = TokenSerializer
+    queryset = UserToken.objects.all()
+
+    def get_object(self):
+        key = self.request.data.get("token")
+        token = get_object_or_404(
+            self.get_queryset(),
+            user=self.request.user,
+            key=key,
         )
+        return token
+
+    def perform_delete(self, token):
+        token.delete()
+
+    def post(self, request, *args, **kwargs):
+        token = self.get_object()
+        self.perform_delete(token)
+        return Response(data={"message": "you are logged out the system"})

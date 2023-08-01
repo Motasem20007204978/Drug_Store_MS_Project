@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="54" viewBox="0 0 54 54">
+  <defs>
+    <filter id="Ellipse_6" x="0" y="0" width="54" height="54" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_844" data-name="Group 844" transform="translate(-1730 -162.562)">
+    <g transform="matrix(1, 0, 0, 1, 1730, 162.56)" filter="url(#Ellipse_6)">
+      <circle id="Ellipse_6-2" data-name="Ellipse 6" cx="18" cy="18" r="18" transform="translate(9 6)" fill="#f9f9f9"/>
+    </g>
+    <path id="Path_360" data-name="Path 360" d="M0,14.334v3.773H3.773L14.9,6.975,11.132,3.2,0,14.334ZM17.812,4.067a1.008,1.008,0,0,0,0-1.424L15.463.294a1.008,1.008,0,0,0-1.424,0L12.2,2.135l3.773,3.773,1.841-1.841Z" transform="translate(1748.621 177.111) rotate(3)" fill="#b1b1b1"/>
+  </g>
+</svg>

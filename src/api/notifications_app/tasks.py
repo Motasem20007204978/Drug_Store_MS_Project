@@ -53,7 +53,7 @@ def send_client_notification(notif_id):
 def load_related_notifications(username):
     notifs = Notification.objects.filter(receiver__username=username)
     for notif in notifs:
-        send_client_notification.delay(notif_id=notif.id)
+        send_client_notification(notif_id=notif.id)
 
 
 @shared_task(name="delete_instance_notification")

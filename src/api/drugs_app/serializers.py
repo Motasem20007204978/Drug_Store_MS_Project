@@ -8,6 +8,7 @@ class DrugSerializer(QueryFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Drug
         fields = (
+            "id",
             "name",
             "quantity",
             "drug_price",

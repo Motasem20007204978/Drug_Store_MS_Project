@@ -1,8 +1,5 @@
-from django.contrib.auth import get_user_model
-from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.settings import api_settings
 
 User = get_user_model()
 
@@ -60,30 +57,6 @@ login_response = {
 }
 
 
-@extend_schema_serializer(
-    examples=[
-        OpenApiExample(
-            name="success login",
-            value=login_response,
-            response_only=True,
-            status_codes=[200],
-        )
-    ],
-)
-class LoginSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        data["refresh_token_timeout"] = api_settings.REFRESH_TOKEN_LIFETIME
-        data["access_token_timeout"] = api_settings.ACCESS_TOKEN_LIFETIME
-        data["user"] = {
-            "username": self.user.username,
-            "name": self.user.full_name,
-            "email": self.user.email,
-            "is_staff": self.user.is_staff,
-        }
-        return data
-
-
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = PasswordField(label="old password")
     new_password = PasswordField(label="new passowrd")
@@ -99,5 +72,42 @@ class ChangePasswordSerializer(serializers.Serializer):
         request = self.context.get("request", "")
         old_pass = data.get("old_password", "")
         request.user.check_password(old_pass)
-        request.user.check_email_activation()
         return data
+
+
+class AuthSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True)
+    password = PasswordField()
+
+    class Meta:
+        fields = "__all__"
+
+    def create(self, validated_data):
+        return validated_data
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        user = authenticate(
+            request=self.context.get("request"),
+            email=email,
+            password=password,
+        )
+
+        if not user:
+            msg = "Unable to log in with provided credentials."
+            raise serializers.ValidationError(msg, code="authorization")
+
+        attrs["user"] = user
+        return attrs
+
+
+class TokenSerializer(serializers.Serializer):
+    token = serializers.CharField(write_only=True)
+
+    class Meta:
+        fields = "__all__"
+
+    def create(self, validated_data):
+        return validated_data

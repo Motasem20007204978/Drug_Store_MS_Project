@@ -1,5 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
+from urllib import parse
+
 from celery import shared_task
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -40,10 +42,12 @@ def send_password(email, password):
 
 
 def make_activation_url(url_name, uuid64, token):
+    qd = {"uuid": uuid64, "token": token}
+    qp = parse.urlencode(qd)
     site = Site.objects.get_current()
     current_domain = site.domain
-    relative_url = reverse(url_name, kwargs={"uuid": uuid64, "token": token})
-    actiavation_link = f"http://{current_domain}{relative_url}"
+    relative_url = reverse(url_name)
+    actiavation_link = f"http://{current_domain}?{qp}"
     return actiavation_link
 
 

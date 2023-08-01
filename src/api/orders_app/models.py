@@ -9,8 +9,8 @@ User = get_user_model()
 
 class Order(TimeStampedModel):
     STATUS = (
-        ("Pending", "Pending"),
-        ("Completed", "Completed"),
+        ("pending", "Pending"),
+        ("completed", "Completed"),
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -18,9 +18,8 @@ class Order(TimeStampedModel):
         related_name="orders",
     )
     status = models.CharField(
-        default="Pending", choices=STATUS, max_length=10
+        default="pending", choices=STATUS, max_length=10
     )
-    description = models.TextField()
 
     class Meta:
         db_table = "orders_db"

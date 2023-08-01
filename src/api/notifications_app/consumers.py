@@ -17,8 +17,7 @@ class NotificationConsumer(JsonWebsocketConsumer):
             self.group_name, self.channel_name
         )
         super().connect()
-
-        load_related_notifications.delay(self.group_name)
+        load_related_notifications(self.group_name)
 
     def disconnect(self, close_code=None):
         async_to_sync(self.channel_layer.group_discard)(

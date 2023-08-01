@@ -8,10 +8,10 @@
         type="email"
         placeholder="Email"
         class="form-control"
-        id="exampleInputEmail1"
+        id="email"
         aria-describedby="emailHelp"
       />
-      <label for="exampleInputEmail1"
+      <label for="email"
         ><img
           src="{% static '/assets/icons/pharmacy-icon.svg' %}"
           alt="pharmacy-icon"
@@ -24,9 +24,9 @@
         type="password"
         placeholder="Password"
         class="form-control"
-        id="exampleInputPassword1"
+        id="password"
       />
-      <label for="exampleInputPassword1"
+      <label for="password"
         ><img
           src="{% static '/assets/icons/lock-icon.svg' %}"
           alt="lock-icon"
@@ -49,7 +49,9 @@
       </div>
     </div>
     <button
-      type="submit"
+      type="button"
+      id="login-button"
+      py-click="login()"
       class="btn btn-primary"
       style="width: 100%; background-color: #0093dd; border-radius: 25px"
     >

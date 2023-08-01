@@ -33,7 +33,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -102,7 +102,6 @@ PROMETHEUS_LATENCY_BUCKETS = (
 
 PROMETHEUS_EXPORT_MIGRATIONS = False  # to avoid migrations dependencies
 
-
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -133,9 +132,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = "drug_store.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -182,7 +178,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "auth_app.authentication.CustomTokenAuthentication",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
@@ -194,26 +190,20 @@ REST_FRAMEWORK = {
     },
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
-    "UPDATE_LAST_LOGIN": True,  # for TokenObtainBairView
-    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-}
-
-# redis configurations
-REDIS_URL = config("REDIS_URL")
 
 # redis configurations
 REDIS_URL = config("REDIS_URL")
 
 # celery settings
 CELERY_BROKER_URL = REDIS_URL
+CELERY_TIMEZONE = "Asia/Riyadh"
 CELERY_RESULT_BACKEND = REDIS_URL  # for caching
-CELERY_TIMEZONE = "Asia/Gaza"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_SERIALIZER = "json"
 CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_CACHE_BACKEND = "default"
 
 # redis (remote dictionary server) for caching
 CACHES = {
@@ -225,25 +215,26 @@ CACHES = {
             "MAX_ENTRIES": 2000,
         },
         "KEY_PREFIX": "API",
+        "TIMEOUT": 60,
     }
 }
 # to make redis does not interfere with django admin panel and current session
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
-CELERY_CACHE_BACKEND = "default"
 
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [config("REDIS_URL")],
+            "hosts": [REDIS_URL],
             "symmetric_encryption_keys": [SECRET_KEY],
         },
     }
 }
 
 
+WSGI_APPLICATION = "drug_store.wsgi.application"
 ASGI_APPLICATION = "drug_store.routing.application"
 
 

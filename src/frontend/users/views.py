@@ -24,14 +24,10 @@ def profile(request):
 
 
 def add_users(request):
-    context = {
-        'title': 'add users'
-    }
+    context = {"title": "add users"}
     return render(request, "user/add_users.html", context)
 
-def add_drugs(request):
-    context = {
-        'title': 'add drugs'
-    }
-    return render(request, "user/add_drugs.html", context)
 
+def add_drugs(request):
+    context = {"title": "add drugs"}
+    return render(request, "user/add_drugs.html", context)

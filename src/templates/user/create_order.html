@@ -1,23 +1,15 @@
 {% extends 'base/base.html' %} {% load static %} {% block content %}
 <link rel="stylesheet" href="{% static '/css/create_order.css' %}" />
 {% include 'base/navbar.html' %}
+<py-script src="{% static 'ps/drugs.py' %}"> </py-script>
 <div class="taable">
   <div class="labels">
     <label>Drug Name</label>
     <label id="quantity">Quantity:</label>
   </div>
   <div class="form">
-    <select>
-      <option value="" disabled selected>Select or enter drug Name</option>
-      <option value="option1">VALECORT G- CREAM</option>
-      <option value="option2">BUVIDAL VIT (D3 50,000 I.U.) 1x6 TABS</option>
-      <option value="option3">XTRAM PLUS TABLET</option>
-      <option value="option1">ZETAMYCIN 20MG. AMPULE</option>
-      <option value="option2">XYLENE GEL*</option>
-      <option value="option3">VALECORT G- CREAM</option>
-      <option value="option1">BUVIDAL VIT (D3 50,000 I.U.) 1x6 TABS</option>
-      <option value="option2">XTRAM PLUS TABLET</option>
-      <option value="option3">ZETAMYCIN 20MG. AMPULE</option>
+    <select id="get-drugs">
+      <option value="0" disabled selected>Select or enter drug Name</option>
     </select>
     <input
       type="number"
@@ -26,10 +18,11 @@
       min="0"
       max="100"
       value="0"
-      />
-      <button type="button" class="btn" id="add">ADD</button>
+    />
+    <button type="button" class="btn" id="add" py-click="add_drug()">
+      ADD
+    </button>
   </div>
-
 
   <table>
     <thead>
@@ -45,37 +38,8 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>10017</td>
-        <td>VALECORT G- CREAM</td>
-        <td>20</td>
-        <td>
-          <input type="checkbox" id="checkbox" name="checkbox" checked />
-          <label for="checkbox">Available</label>
-        </td>
-        <td>22,Mar,2022</td>
-        <td>10</td>
-        <td>200</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>10017</td>
-        <td>VALECORT G- CREAM</td>
-        <td>20</td>
-        <td>
-          <input type="checkbox" id="checkbox" name="checkbox" checked />
-          <label for="checkbox">Available</label>
-        </td>
-        <td>22,Mar,2022</td>
-        <td>10</td>
-        <td>200</td>
-        <td><button type="button" class="btn" id="Update">Update</button></td>
-      </tr>
-      <tr>
-        <td colspan="8">Total Price <label>400 NIS</label></td>
-      </tr>
     </tbody>
   </table>
-  <button type="button" class="btn" id="Save">Save</button>
+  <button type="button" class="btn" id="Save" py-click="save()">Save</button>
 </div>
 {% endblock %}

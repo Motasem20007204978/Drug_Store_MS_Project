@@ -54,3 +54,5 @@ app.conf.beat_schedule = {
 
 # how to check validators and get results before the task completes
 #    wait for success status for the task
+
+# python -m celery -A drug_store worker

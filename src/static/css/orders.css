@@ -1,0 +1,66 @@
+table {
+    width: 80%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: small;
+    margin: 100px auto;
+}
+
+th,
+td {
+    padding: 10px;
+    width: 95px;
+    border-bottom: 1px solid #b1b1b1;
+}
+
+th {
+    background-color: #d4edf9;
+    font-weight: bold;
+}
+
+td {
+    background-color: white;
+    vertical-align: middle;
+}
+
+td[colspan="4"] {
+    background-color: #e3e3e3;
+    color: #707070;
+    font-weight: bold;
+    justify-content: space-between;
+}
+
+tr:first-child {
+    border-bottom: 1px solid #e3e3e3;
+}
+
+table tr td:nth-child(2),
+table tr td:nth-child(3) {
+    color: #0093dd;
+}
+
+table tr td:nth-child(6),
+table tr td:nth-child(7) {
+    color: #168305;
+    font-weight: bold;
+}
+
+table tr td:nth-child(8) {
+    color: #946800;
+    font-weight: bold;
+}
+
+table label {
+    color: #168305;
+}
+
+#drug {
+    width: 35px;
+    margin-right: 700px;
+}
+
+.navigation .next {
+    color: #707070;
+    margin-left: 150px;
+    font-size: large;
+}

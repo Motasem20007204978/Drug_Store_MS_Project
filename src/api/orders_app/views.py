@@ -24,44 +24,27 @@ class AbstractView(GenericAPIView):
 
 
 class ListCreateOrder(AbstractView, ListModelMixin, CreateModelMixin):
-    def get_pharmacy(self):
-        username = self.request.resolver_match.kwargs.get("username")
-        pharmacy = get_object_or_404(User, username=username)
-        return pharmacy
-
     def filter_queryset(self, queryset):
-        pharmacy = self.get_pharmacy()
-        if pharmacy != self.request.user or not self.request.user.is_staff:
-            return self.permission_denied()
-        queryset = queryset.filter(user=pharmacy)
+        username = self.request.GET.get("username")
+        if username:
+            queryset = queryset.filter(user__username=username)
         status = self.request.GET.get("status")
         if status:
             queryset = queryset.filter(status=status)
         return queryset
 
     def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if request.user != self.get_pharmacy() or request.user.is_staff:
-            return self.permission_denied()
+        if request.user.is_staff:
+            self.permission_denied(request)
         return self.create(request, *args, **kwargs)
 
 
-class ListOrders(AbstractView, ListModelMixin):
-    def get_queryset(self):
-        filters = self.request.query_params.dict()
-        return self.queryset.filter(**filters)
+class ExtractOrders(AbstractView, ListModelMixin):
 
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return self.permission_denied()
-        return self.list(request, *args, **kwargs)
-
-
-class ExtractOrders(ListOrders):
-
-    queryset = Order.objects.filter(status="CO")
+    queryset = Order.objects.filter(status="completed")
 
     def get_serializer(self, queryset, many=True):
         return self.serializer_class(
@@ -92,37 +75,24 @@ class ExtractOrders(ListOrders):
 class ModifyOrder(
     AbstractView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 ):
-    def get_pharmacy(self):
-        username = self.request.resolver_match.kwargs.get("username")
-        pharmacy = get_object_or_404(User, username=username)
-        return pharmacy
-
     def get_object(self):
         order_id = self.request.resolver_match.kwargs.get("order_id")
-        order = get_object_or_404(
-            Order, id=order_id, user=self.get_pharmacy()
-        )
+        order = get_object_or_404(Order, id=order_id, user=self.request.user)
         return order
 
     def get(self, request, *args, **kwargs):
-        if self.get_pharmacy() != request.user or not request.user.is_staff:
+        if request.user.is_staff:
             return self.permission_denied()
         return self.retrieve(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        if (
-            self.get_pharmacy() != request.user
-            or self.get_object().status == "Completed"
-        ):
+        if self.get_object().status == "Completed":
             return self.permission_denied()
         return self.partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        if (
-            self.get_pharmacy() != request.user
-            or self.get_object().status != "Completed"
-        ):
-            return self.permission_denied()
+        if self.get_object().status == "Completed":
+            return self.permission_denied(request)
         return self.destroy(request, *args, **kwargs)
 
 
@@ -131,10 +101,10 @@ class StatusOrderView(AbstractView, APIView):
         order = get_object_or_404(Order, id=order_id)
         status = request.data.get("status", "")
         if (
-            status != "Completed"
+            status != "completed"
             or not request.user.is_staff
             or order.status == "Completed"
         ):
-            return self.permission_denied()
-        order.set_status("Completed")
+            return self.permission_denied(request)
+        order.set_status("completed")
         return Response("the state is changed successfully")

@@ -8,15 +8,16 @@ from .tasks import send_password
 
 
 class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
-    picture = Base64ImageField()
+    profile_pic = Base64ImageField()
 
     class Meta:
         model = User
         fields = (
             "username",
             "email",
-            "full_name",
-            "picture",
+            "first_name",
+            "last_name",
+            "profile_pic",
             "location",
             "first_name",
             "last_name",
@@ -24,14 +25,9 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
             "updated_at",
         )
         read_only_fields = (
-            "full_name",
             "date_joined",
             "updated_at",
         )
-        extra_kwargs = {
-            "first_name": {"write_only": True},
-            "last_name": {"write_only": True},
-        }
 
     def send_user_password(self, email, password):
         send_password.delay(email, password)
