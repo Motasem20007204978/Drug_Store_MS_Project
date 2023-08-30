@@ -61,7 +61,8 @@ def delete_notifications(obj_id, search_word: str):
     notifications = Notification.objects.filter(
         data__contains={search_word: obj_id}
     )
-    notifications.delete()
+    if notifications.exists():
+        notifications.delete()
 
 
 @shared_task(name="delete_from_client_side")

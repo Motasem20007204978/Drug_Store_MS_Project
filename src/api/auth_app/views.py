@@ -52,10 +52,10 @@ class ForgetPassowrd(CreateAPIView):
         super().post(request)
         data = {
             "email": request.data["email"],
-            "url_name": "auth:reset_pass",
+            "url_name": "auth:set_pass",
         }
         send_activation.delay(data)
-        return Response({"messaga": "check your email to reset password"})
+        return Response({"message": "check your email to reset password"})
 
 
 @extend_schema_view(
@@ -114,7 +114,7 @@ class ChangePasswordView(CreateAPIView):
     def post(self, request):
         super().post(request)
         return Response(
-            {"message": "user passowrd is set successfully"}, status=201
+            {"message": "user password is set successfully"}, status=201
         )
 
 
@@ -132,7 +132,7 @@ class ChangePasswordView(CreateAPIView):
                         value={
                             "token": "random string",
                             "username": "Ahmed",
-                            "profil_pic": "example.com/media/image.jpg",
+                            "profile_pic": "example.com/media/image.jpg",
                             "first_name": "Name",
                             "last_name": "Last",
                             "is_staff": True,

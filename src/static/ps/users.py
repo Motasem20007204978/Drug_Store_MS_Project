@@ -16,6 +16,66 @@ HEADERS = {
 }
 
 
+def all_users():
+    tbody = js.document.getElementById("users-body")
+    tbody.innerHTML = ""
+
+    url = f"{HOST_URL}api/users/"
+    HEADERS["Authorization"] = f"Token {AUTH_DATA['token']}"
+    response = requests.get(url, headers=HEADERS)
+    for u in response.json():
+        if u["username"] == AUTH_DATA["username"]:
+            continue
+        # https://bootdey.com/img/Content/avatar/avatar1.png
+        tbody.innerHTML += f"""
+            <tr id="user{u["username"]}">
+                <th scope="row" class="ps-4"> 
+                </th>
+                <td>
+                <img src="{u["profile_pic"]}" alt="" class="avatar-sm rounded-circle me-2" />
+            {u["username"]}
+          </td>
+          <td>{u["email"]}
+          </td>
+          <td>
+            {u["first_name"]}
+          </td>
+          <td>{u["last_name"]}</td>
+            <td>{u["location"]}</td>
+                <td>
+                    <ul class="list-inline mb-0">
+                    <li class="list-inline-item">
+                        <a
+                        href="javascript:void(0);"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        py-click="delete_user('{u["username"]}')"
+                        title="Delete"
+                        class="px-2 text-danger"
+                        ><i class="bx bx-trash-alt font-size-18"></i
+                        ></a>
+                    </li>
+                    </ul>
+                </td>
+            </tr>
+        """
+    js.document.getElementById("users-count").innerHTML = (
+        len(response.json()) - 1
+    )
+
+
+def delete_user(username):
+    url = f"{HOST_URL}api/users/{username}"
+    HEADERS["Authorization"] = f"Token {AUTH_DATA['token']}"
+    response = requests.delete(url, headers=HEADERS)
+    if response.status_code == 204:
+        js.document.getElementById(f"user{username}").remove()
+        uchtml = js.document.getElementById("users-count")
+        users_count = int(uchtml.innerHTML)
+        users_count -= 1
+        uchtml.innerHTML = users_count
+
+
 def get_data():
     url = f"{HOST_URL}api/users/{AUTH_DATA['username']}"
     HEADERS["Authorization"] = f"Token {AUTH_DATA['token']}"
@@ -67,7 +127,7 @@ def popup():
 
 def upload(base64_text):
     data = {"profile_pic": base64_text}
-    url = url = f"{HOST_URL}api/users/{AUTH_DATA['username']}"
+    url = f"{HOST_URL}api/users/{AUTH_DATA['username']}"
     HEADERS["Authorization"] = f"Token {AUTH_DATA['token']}"
     response = requests.patch(url, json.dumps(data), headers=HEADERS)
     if response.status_code == 200:
@@ -93,4 +153,7 @@ def change_pass():
 
 
 if __name__ == "__main__":
-    get_data()
+    if js.location.href.__contains__("/users"):
+        all_users()
+    else:
+        get_data()

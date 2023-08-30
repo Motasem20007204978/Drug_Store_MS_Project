@@ -52,11 +52,11 @@ class ExtractOrders(AbstractView, ListModelMixin):
             many=many,
         )
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if not request.user.is_staff:
-            return self.permission_denied()
+            self.permission_denied(request)
 
-        response = HttpResponse(content_type="text/csv")
+        response = HttpResponse(content_type="application/octet-stream")
         response["Content-Disposition"] = 'attachment; filename="export.csv"'
 
         serializer = self.get_serializer(
@@ -82,17 +82,17 @@ class ModifyOrder(
 
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
-            return self.permission_denied()
+            self.permission_denied(request)
         return self.retrieve(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         if self.get_object().status == "Completed":
-            return self.permission_denied()
+            self.permission_denied(request)
         return self.partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         if self.get_object().status == "Completed":
-            return self.permission_denied(request)
+            self.permission_denied(request)
         return self.destroy(request, *args, **kwargs)
 
 
@@ -105,6 +105,6 @@ class StatusOrderView(AbstractView, APIView):
             or not request.user.is_staff
             or order.status == "Completed"
         ):
-            return self.permission_denied(request)
+            self.permission_denied(request)
         order.set_status("completed")
         return Response("the state is changed successfully")

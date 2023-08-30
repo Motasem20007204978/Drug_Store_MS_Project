@@ -45,7 +45,7 @@ def check_user_to_add_modifying_buttons(oid):
     return ""
 
 
-def get_orders():
+def get_orders(page=1):
     url = f"{HOST_URL}api/orders/"
     if (
         js.window.location.href.__contains__("orders/current")

@@ -1,23 +1,93 @@
-{% extends 'base/base.html' %} {% load static %} {% block content %} 
-{% include 'base/navbar.html' %}
-<link rel="stylesheet" href="{% static 'css/orders.css' %}">
-<py-script src="{% static '/ps/orders.py' %}"> </py-script>
+{% extends 'base/base.html' %} {% load static %} 
+{% block content %} {% include 'base/navbar.html' %}
+<link rel="stylesheet" href="{% static 'css/orders.css' %}" />
+<py-script src="{% static 'ps/orders.py' %}"> </py-script>
 
-<table>
-  <thead>
-    <tr>
-      <th>Drug ID</th>
-      <th>Drug Name</th>
-      <th>Quantity</th>
-      <th>Expiry Date</th>
-      <th>Drug Status</th>
-      <th>Price Per Unit (NIS)</th>
-      <th>Total Price (NIS)</th>
-      <th>Order Status</th>
-    </tr>
-  </thead>
-  <tbody id="get-orders">
-  </tbody>
-</table>
+<div class="container mt-5 pt-5">
+  <div class="row align-items-center" id="header">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <h5 class="card-title">Archived Orders</h5>
+      </div>
+    </div>
+    <div class="col-md-6" id="export_button" style="display: none;">
+      <div
+        class="d-flex flex-wrap align-items-center justify-content-end gap-2 mb-3"
+      >
+        <button type="button" class="btn btn-primary" id="export-orders">
+          <img
+            src="{% static 'assets/icons/export.svg' %}"
+            alt="Export"
+            style="margin-right: 10px"
+          />Export
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="">
+        <div class="table-responsive">
+          <table
+            class="table project-list-table table-nowrap align-middle table-borderless"
+          >
+            <thead style="background-color: #d4edf9">
+              <tr>
+                <th>Drug ID</th>
+                <th>Drug Name</th>
+                <th>Quantity</th>
+                <th>Expiry Date</th>
+                <th>Drug Status</th>
+                <th>Price Per Unit (NIS)</th>
+                <th>Total Price (NIS)</th>
+                <th>Order Status</th>
+              </tr>
+            </thead>
+            <tbody id="get-orders"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  auth_data = JSON.parse(localStorage.getItem("auth_data"));
+  var ex_button = document.getElementById("export_button");
+  if (auth_data["is_staff"]) {
+    console.log(auth_data["is_staff"])
+    ex_button.style.display = "block";
+  }
+</script>
+
+<script>
+  console.log("button to be clicked")
+  const exportOrders = document.getElementById("export-orders");
+  exportOrders.addEventListener('click', async function(event) {
+    // This code will run when the button is clicked
+    console.log('Button clicked!');
+    // You can perform any actions or call functions here
+    auth_data = JSON.parse(localStorage.getItem("auth_data"));
+    const response = await fetch('http://localhost:8000/api/orders/extract', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/octet-stream', // Set appropriate content type
+          'Authorization': `Token ${auth_data["token"]}`,
+      },
+    });
+    const blob = await response.blob(); // Get the response body as a Blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary link element and simulate a click to trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'orders.csv'; // Set the desired filename
+    link.click();
+
+    // Clean up after the download
+    URL.revokeObjectURL(url);
+
+    alert("csv file is downloaded successfully");
+  });
+</script>
 
 {% endblock%}

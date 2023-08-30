@@ -8,7 +8,7 @@ from .tasks import send_password
 
 
 class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
-    profile_pic = Base64ImageField()
+    profile_pic = Base64ImageField(required=False)
 
     class Meta:
         model = User
@@ -19,8 +19,6 @@ class UserSerializer(QueryFieldsMixin, serializers.ModelSerializer):
             "last_name",
             "profile_pic",
             "location",
-            "first_name",
-            "last_name",
             "date_joined",
             "updated_at",
         )

@@ -12,11 +12,12 @@ from drf_spectacular.utils import (
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.mixins import (
     CreateModelMixin,
+    DestroyModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-from rest_framework.parsers import FileUploadParser
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from .models import Drug
@@ -64,12 +65,6 @@ class ListCreateDrugView(AbstractView, ListModelMixin, CreateModelMixin):
     post=extend_schema(
         description="extract csv file data for drugs and add it",
         operation_id="add drugs",
-        # request={
-        #     "multipart/form-data": {
-        #         "type": "object",
-        #         "properties": {"file": OpenApiTypes.BINARY},
-        #     }
-        # },
         tags=["drugs"],
         responses={
             200: OpenApiResponse(
@@ -88,7 +83,7 @@ class ListCreateDrugView(AbstractView, ListModelMixin, CreateModelMixin):
 )
 class FileUploadView(AbstractView):
 
-    parser_classes = (FileUploadParser,)
+    parser_classes = (MultiPartParser,)
 
     def perform_deletion(self):
         # delete database
@@ -159,10 +154,17 @@ class FileUploadView(AbstractView):
     patch=extend_schema(
         operation_id="updata drug data",
         tags=["drugs"],
-        description="update user data by id",
+        description="update drug data by id",
+    ),
+    delete=extend_schema(
+        operation_id="delete drug data",
+        tags=["drugs"],
+        description="delete drug data by id",
     ),
 )
-class OneDrugView(AbstractView, RetrieveModelMixin, UpdateModelMixin):
+class OneDrugView(
+    AbstractView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+):
     def get_object(self):
         drug_id = self.kwargs["drug_id"]
         drug = get_object_or_404(Drug, pk=drug_id)
@@ -172,6 +174,11 @@ class OneDrugView(AbstractView, RetrieveModelMixin, UpdateModelMixin):
         return self.retrieve(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        if request.user.is_staff:
-            return self.partial_update(request, *args, **kwargs)
-        return Response({"message": "this user is not admin"})
+        if not request.user.is_staff:
+            self.permission_denied(request)
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            self.permission_denied(request)
+        return self.destroy(request, *args, **kwargs)

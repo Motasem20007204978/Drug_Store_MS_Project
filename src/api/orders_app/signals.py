@@ -17,7 +17,10 @@ def reduce_drug_quantity(instance, **kwargs):
 
 @receiver(post_delete, sender=OrderedDrug)
 def rollback_drug_quantity(instance, **kwargs):
-    on_commit(lambda: set_drug_quantity(instance.drug.id, instance.quantity))
+    if instance.drug:
+        on_commit(
+            lambda: set_drug_quantity(instance.drug.id, instance.quantity)
+        )
 
 
 @receiver(post_save, sender=Order)
@@ -28,7 +31,7 @@ def send_creation_notif(instance, created, **kwargs):
             "sender_id": instance.user.id,
             "receiver_id": admin.id,
             "options": {
-                "message": f"the user {instance.user.full_name} asks order",
+                "message": f"the user {instance.user.full_name} asks order {instance.id}",
                 "order_id": instance.id,
             },
         }
@@ -43,13 +46,8 @@ def send_approving_notif(instance, **kwargs):
             "sender_id": admin.id,
             "receiver_id": instance.user.id,
             "options": {
-                "message": f"the admin approve your order order",
+                "message": f"the admin approve your order order {instance.id}",
                 "order_id": instance.id,
             },
         }
         on_commit(lambda: create_notification(**data))
-
-
-@receiver(post_delete, sender=Order)
-def send_notification(instance, **kwargs):
-    on_commit(lambda: delete_notifications(instance.id, "order_id"))

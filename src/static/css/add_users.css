@@ -133,3 +133,49 @@ a {
     width: 110px;
     margin-top: 20px;
 }
+
+
+.file-input-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .custom-file-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-size: 24px 24px; /* Adjust image size */
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-color: #0093DD;
+    color: white;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .label-text {
+    margin-left: 10px;
+  }
+
+  .plus-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+  }
+  
+  .plus-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('plus-icon.png'); /* Replace with your plus icon image */
+    background-size: cover;
+    margin-left: 5px;
+  }

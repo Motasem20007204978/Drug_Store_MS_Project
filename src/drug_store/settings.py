@@ -55,7 +55,6 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",  # required for Django collectstatic discovery
     "django_extensions",
-    "rest_framework_simplejwt.token_blacklist",
     "drf_queryfields",
     "django_prometheus",
     "django_redis",

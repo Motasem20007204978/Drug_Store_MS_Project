@@ -1,26 +1,48 @@
 {% extends 'base/base.html' %} {% load static %} {% block content %} 
 {% include 'base/navbar.html' %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-7ZPWPZ5sUhRQTp3P5zCOZyPOk5SdsehCPmpsjg5tl0Iuh8AA1e0zJ6hV2DYh6lbm3sF7h7mThG79T6hkXprMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="{% static 'css/orders.css' %}">
-
 <py-script src="{% static 'ps/orders.py' %}"></py-script>
 
-<table>
-  <thead>
-    <tr>
-      <th>Drug ID</th>
-      <th>Drug Name</th>
-      <th>Quantity</th>
-      <th>Expiry Date</th>
-      <th>Drug Status</th>
-      <th>Price Per Unit (NIS)</th>
-      <th>Total Price (NIS)</th>
-      <th>Order Status</th>
-    </tr>
-  </thead>
-  <tbody id="get-orders">
-    
-  </tbody>
-</table>
-
+<div class="container mt-5 pt-5">
+  <div class="row align-items-center" id="header">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <h5 class="card-title">Current Orders</h5>
+      </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="">
+        <div class="table-responsive">
+          <table
+            class="table project-list-table table-nowrap align-middle table-borderless"
+          >
+            <thead style="background-color: #d4edf9">
+              <tr>
+                <th>Drug ID</th>
+                <th>Drug Name</th>
+                <th>Quantity</th>
+                <th>Expiry Date</th>
+                <th>Drug Status</th>
+                <th>Price Per Unit (NIS)</th>
+                <th>Total Price (NIS)</th>
+                <th>Order Status</th>
+              </tr>
+            </thead>
+            <tbody id="get-orders"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  function removeRows(oid) {
+    document.getElementById(f"tr-{oid}").remove()
+    rows = document.getElementsByName(f"order{oid}")
+    rows.forEach(element => {
+      element.remove();
+    });
+  } 
+</script>
 {% endblock %}

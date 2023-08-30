@@ -38,12 +38,13 @@ def reset():
         "email": email.value,
     }
     response = requests.post(url, json.dumps(data), headers=HEADERS)
-    print(response.json())
+    js.alert(response.json()["message"])
 
 
 def set_password():
     queries = js.window.location.search.split("?")[-1].split("&")
-    query_dict = {name: value for name, value in queries}
+    js.console.log(queries)
+    query_dict = {name.split("=")[0]: name.split("=")[1] for name in queries}
     uid = query_dict.get("uuid")
     token = query_dict.get("token")
     url = f"{HOST_URL}api/auth/password/{uid}/{token}/reset"
@@ -52,7 +53,8 @@ def set_password():
         "pass_again": js.document.getElementById("pass_again").value,
     }
     response = requests.post(url, json.dumps(data), headers=HEADERS)
-    print(response.json())
+    js.console.log(response.json()["success"])
+    js.window.location.href = "http://localhost:8000/auth/login"
 
 
 def change_password():

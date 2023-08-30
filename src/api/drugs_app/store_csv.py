@@ -7,12 +7,12 @@ class CSVFiles:
     def __init__(self, request) -> None:
         self.request = request
         self.fs = FileSystemStorage()
-        pass
 
     def store_csv_file(self):
-        if not self.request.FILES.get("file", ""):
+        file = self.request.FILES.get("file", "")
+        if not file:
             raise ValidationError("there is not file uploaded")
-        file = self.request.FILES.get("file").read()
+        file = file.read()
         content = ContentFile(file)
         temp_file = self.fs.save(name="data.csv", content=content)
         return temp_file

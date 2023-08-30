@@ -14,12 +14,6 @@ from rest_framework.generics import get_object_or_404
 
 User = get_user_model()
 
-
-@shared_task(name="delete_expired_tokens")
-def delete_expired_tokens():
-    call_command(command_name="flushexpiredtokens")
-
-
 def email_user(email, subject, template, data):
     html_message = render_to_string(f"mail_templates/{template}", data)
     send_mail(
@@ -34,7 +28,7 @@ def email_user(email, subject, template, data):
 @shared_task(name="send_login_password")
 def send_password(email, password):
     subject = "login site password"
-    message = f"the password for loging in your homepage is \n {password}"
+    message = f"the password for logging in your homepage is \n {password}"
     email_user(
         email, subject, "login_password.html", data={"message": message}
     )
@@ -47,8 +41,8 @@ def make_activation_url(url_name, uuid64, token):
     site = Site.objects.get_current()
     current_domain = site.domain
     relative_url = reverse(url_name)
-    actiavation_link = f"http://{current_domain}?{qp}"
-    return actiavation_link
+    activation_link = f"http://{current_domain}{relative_url}?{qp}"
+    return activation_link
 
 
 @shared_task(name="send_email_activation")

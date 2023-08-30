@@ -1,9 +1,7 @@
 table {
-    width: 80%;
     border-collapse: collapse;
     text-align: center;
-    font-size: small;
-    margin: 100px auto;
+    font-size: small;   
 }
 
 th,

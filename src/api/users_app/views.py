@@ -14,9 +14,10 @@ from rest_framework import status
 from rest_framework.generics import (
     GenericAPIView,
     ListCreateAPIView,
-    RetrieveUpdateAPIView,
+    RetrieveUpdateDestroyAPIView,
     get_object_or_404,
 )
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from .models import User
@@ -36,16 +37,21 @@ from .serializers import UserSerializer
         ],
     ),
     patch=extend_schema(
-        operation_id="updata user data",
+        operation_id="update user data",
         tags=["users"],
         description="update user data by username_validator, iff the authenticated user is the name's user",
     ),
+    delete=extend_schema(
+        operation_id="delete user data",
+        tags=["users"],
+        description="delete user data by username_validator, iff the authenticated user is the name's user",
+    ),
 )
-class UserView(RetrieveUpdateAPIView):
+class UserView(RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     lookup_field = "username"
     queryset = User.objects.all()
-    http_method_names = ["get", "patch"]
+    http_method_names = ["get", "patch", "delete"]
 
     def get(self, request, *args, **kwargs):
         user = get_object_or_404(User, username=kwargs.get("username"))
@@ -55,10 +61,16 @@ class UserView(RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         print(kwargs.get("username"))
-        user = get_object_or_404(User, username=kwargs.get("username"))
+        user = self.get_object()
         if request.user != user:
             self.permission_denied(request)
         return super().patch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        if request.user != user and not request.user.is_staff:
+            self.permission_denied(request)
+        return super().delete(request, *args, **kwargs)
 
 
 @extend_schema_view(
@@ -74,7 +86,7 @@ class UserView(RetrieveUpdateAPIView):
         ],
     ),
     post=extend_schema(
-        description="take json data for a user and regiter it",
+        description="take json data for a user and register it",
         operation_id="register a user",
         tags=["users"],
     ),
@@ -99,7 +111,7 @@ class AddListUsers(ListCreateAPIView):
 
 @extend_schema_view(
     post=extend_schema(
-        description="extract csv file data for users and regiter it",
+        description="extract csv file data for users and register it",
         operation_id="register users",
         tags=["users"],
         responses={
@@ -120,6 +132,7 @@ class AddListUsers(ListCreateAPIView):
 class FileUploadView(GenericAPIView):
 
     queryset = User.objects.all()
+    parser_classes = (MultiPartParser,)
 
     def check_staff_permission(self, request):
         if not request.user.is_staff:
@@ -162,15 +175,17 @@ class FileUploadView(GenericAPIView):
                         data=data,
                         serializer=serializer,
                     )
+                    print(exceptions)
                     continue
                 serializer.save()
+
         os.remove(csv_file)
         if exceptions:
             return Response({"exceptions": exceptions})
 
     def post(self, request, *args, **kwargs):
         self.check_staff_permission(request)
-        self.perform_deletion()
+        # self.perform_deletion()
 
         csv_file = CSVFiles(request).get_csv_file()
         self.perform_creation(csv_file)
